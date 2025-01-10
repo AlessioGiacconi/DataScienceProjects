@@ -1,6 +1,11 @@
 import pandas as pd
+from pathlib import Path
 
-df_csv = pd.read_csv('C:\\Users\\falco\\PycharmProjects\\ProgettoSerieTemporali\\DataScienceProjects\\SerieTemporali\\Dataset\\Online_Retail.csv')
+base_dir = Path(__file__).resolve().parent
+
+file_path = base_dir.parent / 'Dataset' / 'Online_Retail.csv'
+
+df_csv = pd.read_csv(file_path)
 df_csv.info()
 
 df_csv = df_csv.dropna(subset=['CustomerID'])
