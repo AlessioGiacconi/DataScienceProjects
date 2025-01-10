@@ -21,3 +21,6 @@ unit_price_not_zero['InvoiceDate'] = pd.to_datetime(unit_price_not_zero['Invoice
 unit_price_not_zero['Date'] = unit_price_not_zero['InvoiceDate'].dt.date
 unit_price_not_zero['Time'] = unit_price_not_zero['InvoiceDate'].dt.time
 unit_price_not_zero.info()
+
+unique_descriptions_count = df_csv['Description'].nunique()
+print(unique_descriptions_count)
