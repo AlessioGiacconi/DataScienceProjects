@@ -80,3 +80,41 @@ plt.axis('off')
 plt.tight_layout()
 
 plt.show()
+
+
+''' numero di transazioni e spese totali per mese '''
+
+df_csv['InvoiceDate'] = pd.to_datetime(df_csv['InvoiceDate'])
+
+# Group by month and sum the total amount
+df_csv['Month'] = df_csv['InvoiceDate'].dt.to_period('M')  # Extract year and month
+monthly_revenue = df_csv.groupby('Month')['TotalPrice'].sum()  # Group by month and sum the Total_Amount
+
+monthly_transactions = df_csv.groupby('Month')['InvoiceNo'].nunique()
+
+# Create a plot with two y-axes to handle different scales for the two datasets
+
+fig, ax1 = plt.subplots(figsize=(14, 8))
+
+# Plot the number of transactions on the left y-axis
+ax1.bar(monthly_transactions.index.astype(str), monthly_transactions, color='coral', alpha=0.7, width=0.4, label='Numero di Transazioni', align='center')
+ax1.set_ylabel('Numero di Transazioni', fontsize=12, color='coral')
+ax1.tick_params(axis='y', labelcolor='coral')
+ax1.set_xlabel('Mese', fontsize=12)
+ax1.tick_params(axis='x', rotation=45, labelsize=10)
+ax1.set_title('Numero di Transazioni e Spese Totali per Mese', fontsize=16)
+
+# Create a second y-axis for the total revenue
+ax2 = ax1.twinx()
+ax2.bar(monthly_revenue.index.astype(str), monthly_revenue, color='lightgreen', alpha=0.7, width=0.4, label='Spese Totali (€)', align='edge')
+ax2.set_ylabel('Spese Totali (€)', fontsize=12, color='lightgreen')
+ax2.tick_params(axis='y', labelcolor='lightgreen')
+
+# Add a legend to identify the two metrics
+fig.legend(['Numero di Transazioni', 'Spese Totali (€)'], loc='upper left', fontsize=10)
+
+# Adjust layout for better clarity
+plt.tight_layout()
+
+# Show the plot
+plt.show()
