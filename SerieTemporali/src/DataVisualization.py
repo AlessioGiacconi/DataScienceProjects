@@ -119,3 +119,31 @@ plt.tight_layout()
 
 # Show the plot
 plt.show()
+
+''' quanti articoli vengono acquistati per ogni transazione'''
+
+# Group by 'InvoiceNo' and calculate the total quantity of items for each invoice
+invoice_quantities = df_csv.groupby('InvoiceNo')['Quantity'].sum()
+
+# Define the new bins and labels for categorizing the quantity ranges
+bins = [0, 10, 25, 50, 100, 200, 500, float('inf')]
+labels = ['1-10', '10-25', '25-50', '50-100', '100-200', '200-500', '>500']
+
+# Categorize the data into the new defined bins
+invoice_quantities_binned = pd.cut(invoice_quantities,bins=bins, labels=labels, right=False)
+
+# Count the number of invoice in each bin
+quantity_distribution = invoice_quantities_binned.value_counts().sort_index()
+
+# Plot the data
+plt.figure(figsize=(12,8))
+quantity_distribution.plot(kind='bar', color='sandybrown', edgecolor='black')
+
+# Add title and lables
+plt.title('Distribuzione delle Fatture per Fasce di Quantità di Articoli Acquistati', fontsize=16)
+plt.xlabel('Fasce di Quantità di Articoli', fontsize=12)
+plt.ylabel('Numero di Fatture', fontsize=12)
+plt.xticks(rotation=0, fontsize=10)
+plt.tight_layout()
+
+plt.show()
