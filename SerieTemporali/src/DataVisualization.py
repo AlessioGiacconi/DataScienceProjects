@@ -109,6 +109,7 @@ ax2 = ax1.twinx()
 ax2.bar(monthly_revenue.index.astype(str), monthly_revenue, color='lightgreen', alpha=0.7, width=0.4, label='Spese Totali (€)', align='edge')
 ax2.set_ylabel('Spese Totali (€)', fontsize=12, color='lightgreen')
 ax2.tick_params(axis='y', labelcolor='lightgreen')
+ax2.get_yaxis().get_major_formatter().set_scientific(False)
 
 # Add a legend to identify the two metrics
 fig.legend(['Numero di Transazioni', 'Spese Totali (€)'], loc='upper left', fontsize=10)
