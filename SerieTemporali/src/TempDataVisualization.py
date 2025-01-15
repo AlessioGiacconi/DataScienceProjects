@@ -5,6 +5,7 @@ from matplotlib import cm
 from matplotlib import colormaps
 import seaborn as sns
 import numpy as np
+import textwrap
 
 base_dir = Path(__file__).resolve().parent
 
@@ -12,13 +13,57 @@ file_path = base_dir.parent / 'Dataset' / 'clean_dataset.csv'
 
 df_csv = pd.read_csv(file_path)
 df_csv['Hour'] = pd.to_datetime(df_csv['Time'], format='%H:%M:%S').dt.hour
-max_unit_price = df_csv['UnitPrice'].max()
-print(f"Il prezzo unitario più alto è: {max_unit_price}")
-num_products_high_price = df_csv[df_csv['UnitPrice'] > 100].shape[0]
-print(f"cacca: {num_products_high_price}")
+
+# Filtrare le righe che rappresentano cancellazioni (InvoiceNo inizia con "C")
+cancellations = df_csv[df_csv['InvoiceNo'].str.startswith('C')]
+total_cancellations = cancellations.shape[0]
+total_orders = df_csv.shape[0]
+print(f"Totale Cancellazioni: {total_cancellations}")
+print(f"Percentuale di Cancellazioni: {total_cancellations / total_orders * 100:.2f}%")
+
+cancellations = df_csv[df_csv['InvoiceNo'].str.startswith('C')].copy()
+cancellations['Quantity'] = cancellations['Quantity'].abs()
+cancellations_by_product = cancellations.groupby('Description')['Quantity'].sum().sort_values(ascending=False).head(10)
+wrapped_labels = [textwrap.fill(label, width=20) for label in cancellations_by_product.index]  # Regola `width` per il numero di caratteri
+
+#Grafico a barre orizzontali sui prodotti più restituiti
+plt.figure(figsize=(12, 8))
+sns.barplot(y=wrapped_labels, x=cancellations_by_product.values, palette="coolwarm_r")
+plt.title("Top 10 Prodotti Più Cancellati")
+plt.xlabel("Quantità Totale Cancellata")
+plt.ylabel("Descrizione Prodotto")
+plt.yticks(fontsize=8)
+plt.grid(axis='x', linestyle='--', alpha=0.7)
+plt.show()
+
 # Filtrare le righe con Quantity negativa
 df_csv_filtered = df_csv[df_csv['Quantity'] > 0]
 
+
+country_sales = df_csv.groupby('Country')['TotalPrice'].sum()
+country_sales_sqrt = np.sqrt(country_sales)
+country_sales_sqrt = country_sales_sqrt.sort_values(ascending=False)
+
+#Grafico a barre orizzontali sui costi sostenuti per Stato
+plt.figure(figsize=(12, 10))
+sns.barplot(y=country_sales_sqrt.index, x=country_sales_sqrt.values, palette="coolwarm_r", alpha=0.8)
+plt.title("Distribuzione dei costi sostenuti per Stato (scala radice quadrata)")
+plt.xlabel("√ Totale fatturato (£)")
+plt.ylabel("Paese")
+plt.grid(axis='x', linestyle='--', alpha=0.7)
+plt.show()
+
+country_quantity = df_csv.groupby('Country')['Quantity'].sum()
+country_quantity_sqrt = np.sqrt(country_quantity)
+country_quantity_sqrt = country_quantity_sqrt.sort_values(ascending=False)
+
+#Grafico a barre orizzontali sulle quantità vendute per Stato
+plt.figure(figsize=(12, 10))
+sns.barplot(y=country_quantity_sqrt.index, x=country_quantity_sqrt.values, palette="coolwarm_r", alpha=0.8)
+plt.title("Distribuzione delle quantità di prodotti venduti per Stato")
+plt.xlabel("√ Totale venduto")
+plt.ylabel("Paese")
+plt.grid(axis='x', linestyle='--', alpha=0.7)
 
 #Grafico sulla distribuzione delle vendite per fascia oraria
 plt.figure(figsize=(12, 6))
