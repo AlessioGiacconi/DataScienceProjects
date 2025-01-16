@@ -3,6 +3,10 @@ from pathlib import Path
 from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
+from sklearn.metrics import silhouette_score
+import numpy as np
+from sklearn.metrics import silhouette_samples
+
 
 base_dir = Path(__file__).resolve().parent
 print(base_dir)
@@ -69,3 +73,39 @@ plt.xlabel('Cluster')
 plt.ylabel('Numero di Clienti')
 plt.show()
 
+# Calcolare i silhouette scores
+# Calcolare i silhouette scores
+silhouette_vals = silhouette_samples(rfm_scaled, kmeans.labels_)
+
+# Creare il Silhouette Plot senza sovrapposizioni
+plt.figure(figsize=(10, 6))
+
+y_lower = 0
+tick_positions = []  # Per memorizzare le posizioni dei tick
+
+for i in range(optimal_k):
+    # Selezionare i silhouette scores del cluster corrente
+    cluster_silhouette_vals = silhouette_vals[kmeans.labels_ == i]
+    cluster_silhouette_vals.sort()
+    cluster_size = len(cluster_silhouette_vals)
+    y_upper = y_lower + cluster_size
+
+    # Disegnare la banda per il cluster corrente
+    plt.fill_betweenx(np.arange(y_lower, y_upper), 0, cluster_silhouette_vals, alpha=0.7, label=f"Cluster {i}")
+
+    # Calcolare la posizione centrale per l'etichetta del cluster
+    tick_positions.append((y_lower + y_upper) / 2)
+    y_lower = y_upper + 10  # Aggiungere uno spazio tra i cluster
+
+# Aggiungere le etichette dei cluster all'asse Y
+plt.yticks(tick_positions, [f"Cluster {i}" for i in range(optimal_k)])
+
+# Linea del Silhouette Score Medio
+plt.axvline(np.mean(silhouette_vals), color="red", linestyle="--", label="Silhouette Score Medio")
+
+# Titoli e legende
+plt.title("Silhouette Plot con Bande Separate per Cluster")
+plt.xlabel("Valore del Silhouette Coefficient")
+plt.ylabel("Cluster")
+plt.legend()
+plt.show()
