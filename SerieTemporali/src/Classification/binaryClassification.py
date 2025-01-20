@@ -2,6 +2,14 @@ import pandas as pd
 from pathlib import Path
 import seaborn as sns
 import matplotlib.pyplot as plt
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+from sklearn.model_selection import train_test_split, StratifiedKFold, cross_val_score
+from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVC
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.utils import resample
 
 base_dir = Path(__file__).resolve().parent
 
@@ -35,16 +43,146 @@ cancellation_stats = cancellation_stats.sort_values(by='CancellationRate', ascen
 # Calcolare la media di Quantity e UnitPrice per prodotto
 product_stats = df_csv.groupby('Description').agg({
     'Quantity': 'mean',
-    'UnitPrice': 'mean',
+    'UnitPrice': lambda x: x.mode()[0],
     'Country': lambda x: x.mode()[0]  # Prendere il paese più frequente
 }).reset_index()
 
 # Unire con il dataset delle cancellazioni
 cancellation_stats = cancellation_stats.reset_index()  # Assicurarsi che l'indice sia un campo
 classification_data = pd.merge(cancellation_stats, product_stats, on='Description', how='left')
-classification_data['AtRisk'] = (classification_data['CancellationRate'] > 20).astype(int)
+classification_data['AtRisk'] = (classification_data['CancellationRate'] > 5).astype(int)
 classification_data['Country'] = classification_data['Country'].astype('category').cat.codes
 
+# Selezionare le feature e il target
+X = classification_data[[ 'TotalOrders', 'UnitPrice', 'CancelledOrders']]
+y = classification_data['AtRisk']
+
+# =========================
+# Downsampling delle classi
+# =========================
+
+# Concatenare feature e target in un unico DataFrame
+data = pd.concat([X, y], axis=1)
+
+# Separare le classi
+majority_class = data[data['AtRisk'] == 0]
+minority_class = data[data['AtRisk'] == 1]
+
+# Downsampling della classe maggioritaria
+majority_downsampled = resample(
+    majority_class,
+    replace=False,  # Senza replacement
+    n_samples=len(minority_class),  # Stesso numero della classe minoritaria
+    random_state=42
+)
+
+# Concatenare il dataset bilanciato
+balanced_data = pd.concat([majority_downsampled, minority_class])
+
+# Separare nuovamente feature e target
+X_balanced = balanced_data.drop(columns=['AtRisk'])
+y_balanced = balanced_data['AtRisk']
+
+scaler = StandardScaler()
+X_balanced_scaled = scaler.fit_transform(X_balanced)
+
+X_train, X_test, y_train, y_test = train_test_split(X_balanced_scaled, y_balanced, test_size=0.2, random_state=42)
+
+# =========================
+# Random Forest Classifier
+# =========================
+rf_model = RandomForestClassifier(max_depth=3, n_estimators=50, random_state=42)
+kf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+
+cross_val_scores_rf = cross_val_score(rf_model, X_balanced_scaled, y_balanced, cv=kf, scoring='accuracy')
+print(f"Random Forest Cross-Validation Scores (k=5): {cross_val_scores_rf}")
+print(f"Random Forest Mean Accuracy: {cross_val_scores_rf.mean():.4f}")
+
+rf_model.fit(X_train, y_train)
+y_pred_rf = rf_model.predict(X_test)
+
+print("Random Forest Accuracy (Downsampling):", accuracy_score(y_test, y_pred_rf))
+print("Confusion Matrix (Random Forest):\n", confusion_matrix(y_test, y_pred_rf))
+print("Classification Report (Random Forest):\n", classification_report(y_test, y_pred_rf))
+
+# =========================
+# Support Vector Classifier
+# =========================
+svc_model = SVC(kernel='rbf', C=1, random_state=42)
+cross_val_scores_svc = cross_val_score(svc_model, X_balanced_scaled, y_balanced, cv=kf, scoring='accuracy')
+print(f"SVC Cross-Validation Scores (k=5): {cross_val_scores_svc}")
+print(f"SVC Mean Accuracy: {cross_val_scores_svc.mean():.4f}")
+
+svc_model.fit(X_train, y_train)
+y_pred_svc = svc_model.predict(X_test)
+
+print("SVC Accuracy (Downsampling):", accuracy_score(y_test, y_pred_svc))
+print("Confusion Matrix (SVC):\n", confusion_matrix(y_test, y_pred_svc))
+print("Classification Report (SVC):\n", classification_report(y_test, y_pred_svc))
+
+# =========================
+# Logistic Regression
+# =========================
+log_reg = LogisticRegression(random_state=42, max_iter=500)
+
+# Cross-validation
+log_reg_cv_scores = cross_val_score(log_reg, X_balanced_scaled, y_balanced, cv=kf, scoring='accuracy')
+print(f"Logistic Regression Cross-Validation Scores (k=5): {log_reg_cv_scores}")
+print(f"Logistic Regression Mean Accuracy: {log_reg_cv_scores.mean():.4f}")
+
+# Addestramento sul training set
+log_reg.fit(X_train, y_train)
+
+# Previsioni
+y_pred_log_reg = log_reg.predict(X_test)
+
+# Valutazione
+print("Logistic Regression Accuracy (Downsampling):", accuracy_score(y_test, y_pred_log_reg))
+print("Confusion Matrix (Logistic Regression):\n", confusion_matrix(y_test, y_pred_log_reg))
+print("Classification Report (Logistic Regression):\n", classification_report(y_test, y_pred_log_reg))
+
+# =========================
+# Decision Tree Classifier
+# =========================
+dt_model = DecisionTreeClassifier(max_depth=3, random_state=42)
+
+# Cross-validation
+dt_cv_scores = cross_val_score(dt_model, X_balanced_scaled, y_balanced, cv=kf, scoring='accuracy')
+print(f"Decision Tree Cross-Validation Scores (k=5): {dt_cv_scores}")
+print(f"Decision Tree Mean Accuracy: {dt_cv_scores.mean():.4f}")
+
+# Addestramento sul training set
+dt_model.fit(X_train, y_train)
+
+# Previsioni
+y_pred_dt = dt_model.predict(X_test)
+
+# Valutazione
+print("Decision Tree Accuracy (Downsampling):", accuracy_score(y_test, y_pred_dt))
+print("Confusion Matrix (Decision Tree):\n", confusion_matrix(y_test, y_pred_dt))
+print("Classification Report (Decision Tree):\n", classification_report(y_test, y_pred_dt))
+
+# =========================
+# Gradient Boosting Classifier
+# =========================
+gb_model = GradientBoostingClassifier(n_estimators=50, learning_rate=0.1, max_depth=3, random_state=42)
+
+# Cross-validation
+gb_cv_scores = cross_val_score(gb_model, X_balanced_scaled, y_balanced, cv=kf, scoring='accuracy')
+print(f"Gradient Boosting Cross-Validation Scores (k=5): {gb_cv_scores}")
+print(f"Gradient Boosting Mean Accuracy: {gb_cv_scores.mean():.4f}")
+
+# Addestramento sul training set
+gb_model.fit(X_train, y_train)
+
+# Previsioni
+y_pred_gb = gb_model.predict(X_test)
+
+# Valutazione
+print("Gradient Boosting Accuracy (Downsampling):", accuracy_score(y_test, y_pred_gb))
+print("Confusion Matrix (Gradient Boosting):\n", confusion_matrix(y_test, y_pred_gb))
+print("Classification Report (Gradient Boosting):\n", classification_report(y_test, y_pred_gb))
+'''
 # Selezionare solo le colonne numeriche
 numerical_data = classification_data.select_dtypes(include=['float64', 'int64'])
 
@@ -59,4 +197,5 @@ plt.figure(figsize=(10, 8))
 sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', fmt='.2f', linewidths=0.5)
 plt.title('Matrice di Correlazione')
 plt.show()
+'''
 
