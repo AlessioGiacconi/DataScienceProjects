@@ -1,15 +1,19 @@
+import numpy as np
 import pandas as pd
 from pathlib import Path
 import seaborn as sns
 import matplotlib.pyplot as plt
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, VotingClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
-from sklearn.model_selection import train_test_split, StratifiedKFold, cross_val_score
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, roc_auc_score, roc_curve, \
+    precision_recall_curve
+from sklearn.model_selection import train_test_split, StratifiedKFold, cross_val_score, learning_curve
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.utils import resample
+from sklearn.model_selection import GridSearchCV
 
 base_dir = Path(__file__).resolve().parent
 
@@ -50,7 +54,7 @@ product_stats = df_csv.groupby('Description').agg({
 # Unire con il dataset delle cancellazioni
 cancellation_stats = cancellation_stats.reset_index()  # Assicurarsi che l'indice sia un campo
 classification_data = pd.merge(cancellation_stats, product_stats, on='Description', how='left')
-classification_data['AtRisk'] = (classification_data['CancellationRate'] > 5).astype(int)
+classification_data['AtRisk'] = (classification_data['CancellationRate'] > 3).astype(int)
 classification_data['Country'] = classification_data['Country'].astype('category').cat.codes
 
 # Selezionare le feature e il target
@@ -86,7 +90,9 @@ y_balanced = balanced_data['AtRisk']
 scaler = StandardScaler()
 X_balanced_scaled = scaler.fit_transform(X_balanced)
 
-X_train, X_test, y_train, y_test = train_test_split(X_balanced_scaled, y_balanced, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(
+    X_balanced_scaled, y_balanced, test_size=0.2, random_state=42, stratify=y_balanced
+)
 
 # =========================
 # Random Forest Classifier
@@ -182,6 +188,121 @@ y_pred_gb = gb_model.predict(X_test)
 print("Gradient Boosting Accuracy (Downsampling):", accuracy_score(y_test, y_pred_gb))
 print("Confusion Matrix (Gradient Boosting):\n", confusion_matrix(y_test, y_pred_gb))
 print("Classification Report (Gradient Boosting):\n", classification_report(y_test, y_pred_gb))
+
+# =========================
+# Linear Discriminant Analysis (LDA)
+# =========================
+lda_model = LinearDiscriminantAnalysis()
+
+# Cross-validation
+lda_cv_scores = cross_val_score(lda_model, X_balanced_scaled, y_balanced, cv=kf, scoring='accuracy')
+print(f"LDA Cross-Validation Scores (k=5): {lda_cv_scores}")
+print(f"LDA Mean Accuracy: {lda_cv_scores.mean():.4f}")
+
+# Addestramento sul training set
+lda_model.fit(X_train, y_train)
+
+# Previsioni
+y_pred_lda = lda_model.predict(X_test)
+
+# Valutazione
+print("LDA Accuracy (Downsampling):", accuracy_score(y_test, y_pred_lda))
+print("Confusion Matrix (LDA):\n", confusion_matrix(y_test, y_pred_lda))
+print("Classification Report (LDA):\n", classification_report(y_test, y_pred_lda))
+
+# Genera previsioni da ciascun modello
+predictions = {
+    "Random Forest": y_pred_rf,
+    "SVC": y_pred_svc,
+    "Logistic Regression": y_pred_log_reg,
+    "Decision Tree": y_pred_dt,
+    "Gradient Boosting": y_pred_gb,
+    "LDA": y_pred_lda
+}
+
+# Crea un DataFrame con le previsioni
+predictions_df = pd.DataFrame(predictions)
+
+# Calcola la matrice di correlazione
+correlation_matrix = predictions_df.corr()
+
+# Visualizza la heatmap
+plt.figure(figsize=(10, 8))
+sns.heatmap(correlation_matrix, annot=True, cmap="coolwarm", fmt=".2f", linewidths=0.5)
+plt.title("Correlazioni tra le Previsioni dei Modelli")
+plt.show()
+
+# =========================
+# Random Forest Grid Search
+# =========================
+rf_param_grid = {
+    'n_estimators': [25, 50, 75],
+    'max_depth': [3, 4, 5],
+    'max_features': [0.3, 0.7, 1],
+    'bootstrap': [False],
+    'min_samples_split': [2, 3, 10],
+    'min_samples_leaf': [2, 3, 10],
+    'criterion': ['gini']
+}
+
+rf_grid_search = GridSearchCV(
+    RandomForestClassifier(random_state=42),
+    param_grid=rf_param_grid,
+    cv=5,
+    scoring='accuracy'
+)
+
+rf_grid_search.fit(X_train, y_train)
+
+# Migliori parametri e punteggio
+print("Best Random Forest Parameters:", rf_grid_search.best_params_)
+print("Best Random Forest CV Accuracy:", rf_grid_search.best_score_)
+
+# Previsioni con il modello ottimizzato
+rf_best_model = rf_grid_search.best_estimator_
+y_pred_rf_gs = rf_best_model.predict(X_test)
+
+# Valutazione Random Forest
+print("Random Forest Accuracy (Test):", accuracy_score(y_test, y_pred_rf_gs))
+print("Confusion Matrix (Random Forest):\n", confusion_matrix(y_test, y_pred_rf_gs))
+print("Classification Report (Random Forest):\n", classification_report(y_test, y_pred_rf_gs))
+
+# =========================
+# SVC Grid Search
+# =========================
+svc_param_grid = {
+    'C': [0.01,0.1, 1],
+    'kernel': ['linear', 'rbf', 'poly'],
+    'gamma': [0.01,0.1, 1]
+}
+
+svc_grid_search = GridSearchCV(
+    SVC(random_state=42),
+    param_grid=svc_param_grid,
+    cv=5,
+    scoring='accuracy'
+)
+
+svc_grid_search.fit(X_train, y_train)
+
+# Migliori parametri e punteggio
+print("Best SVC Parameters:", svc_grid_search.best_params_)
+print("Best SVC CV Accuracy:", svc_grid_search.best_score_)
+
+# Previsioni con il modello ottimizzato
+svc_best_model = svc_grid_search.best_estimator_
+y_pred_svc_gs = svc_best_model.predict(X_test)
+
+# Valutazione SVC
+print("SVC Accuracy (Test):", accuracy_score(y_test, y_pred_svc_gs))
+print("Confusion Matrix (SVC):\n", confusion_matrix(y_test, y_pred_svc_gs))
+print("Classification Report (SVC):\n", classification_report(y_test, y_pred_svc_gs))
+
+'''
+# Modelli ottimizzati
+svc_best_model = SVC(kernel='rbf', C=1, gamma=1, probability=True, random_state=42)  # probability=True per Soft Voting
+rf_best_model = RandomForestClassifier(n_estimators=150, max_depth=7, class_weight=None, random_state=42)
+'''
 '''
 # Selezionare solo le colonne numeriche
 numerical_data = classification_data.select_dtypes(include=['float64', 'int64'])
