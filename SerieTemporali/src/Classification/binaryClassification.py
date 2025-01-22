@@ -55,10 +55,27 @@ product_stats = df_csv.groupby('Description').agg({
 cancellation_stats = cancellation_stats.reset_index()  # Assicurarsi che l'indice sia un campo
 classification_data = pd.merge(cancellation_stats, product_stats, on='Description', how='left')
 classification_data['AtRisk'] = (classification_data['CancellationRate'] > 3).astype(int)
-classification_data['Country'] = classification_data['Country'].astype('category').cat.codes
+classification_data['Country'] = classification_data['Country'].astype('category').cat.codes.astype('int64')
+
+'''
+# Selezionare solo le colonne numeriche
+numerical_data = classification_data.select_dtypes(include=['float64', 'int64'])
+
+# Calcolare la matrice di correlazione
+correlation_matrix = numerical_data.corr()
+
+# Stampare le correlazioni con la variabile target "AtRisk"
+print(correlation_matrix['AtRisk'].sort_values(ascending=False))
+
+# Creare una heatmap
+plt.figure(figsize=(10, 8))
+sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', fmt='.2f', linewidths=0.5)
+plt.title('Matrice di Correlazione')
+plt.show()
+'''
 
 # Selezionare le feature e il target
-X = classification_data[[ 'TotalOrders', 'UnitPrice', 'CancelledOrders']]
+X = classification_data[['UnitPrice', 'CancelledOrders', 'Quantity', 'Country']]
 y = classification_data['AtRisk']
 
 # =========================
@@ -129,7 +146,7 @@ print("Classification Report (SVC):\n", classification_report(y_test, y_pred_svc
 # =========================
 # Logistic Regression
 # =========================
-log_reg = LogisticRegression(random_state=42, max_iter=500)
+log_reg = LogisticRegression(random_state=42, C= 1, max_iter=500)
 
 # Cross-validation
 log_reg_cv_scores = cross_val_score(log_reg, X_balanced_scaled, y_balanced, cv=kf, scoring='accuracy')
@@ -236,8 +253,8 @@ plt.show()
 # Random Forest Grid Search
 # =========================
 rf_param_grid = {
-    'n_estimators': [25, 50, 75],
-    'max_depth': [3, 4, 5],
+    'n_estimators': [50, 100, 150],
+    'max_depth': [3, 5, 10],
     'max_features': [0.3, 0.7, 1],
     'bootstrap': [False],
     'min_samples_split': [2, 3, 10],
@@ -268,55 +285,128 @@ print("Confusion Matrix (Random Forest):\n", confusion_matrix(y_test, y_pred_rf_
 print("Classification Report (Random Forest):\n", classification_report(y_test, y_pred_rf_gs))
 
 # =========================
-# SVC Grid Search
+# DT Grid Search
 # =========================
-svc_param_grid = {
-    'C': [0.01,0.1, 1],
-    'kernel': ['linear', 'rbf', 'poly'],
-    'gamma': [0.01,0.1, 1]
+dt_param_grid = {
+    'max_depth': [3, 5, 10],
+    'max_features': [0.3, 0.7, 1],
+    'min_samples_split': [2, 3, 10],
+    'min_samples_leaf': [2, 3, 10],
 }
 
-svc_grid_search = GridSearchCV(
-    SVC(random_state=42),
-    param_grid=svc_param_grid,
+dt_grid_search = GridSearchCV(
+    DecisionTreeClassifier(random_state=42),
+    param_grid=dt_param_grid,
     cv=5,
     scoring='accuracy'
 )
 
-svc_grid_search.fit(X_train, y_train)
+dt_grid_search.fit(X_train, y_train)
 
 # Migliori parametri e punteggio
-print("Best SVC Parameters:", svc_grid_search.best_params_)
-print("Best SVC CV Accuracy:", svc_grid_search.best_score_)
+print("Best DT Parameters:", dt_grid_search.best_params_)
+print("Best DT CV Accuracy:", dt_grid_search.best_score_)
 
 # Previsioni con il modello ottimizzato
-svc_best_model = svc_grid_search.best_estimator_
-y_pred_svc_gs = svc_best_model.predict(X_test)
+dt_best_model = dt_grid_search.best_estimator_
+y_pred_dt_gs = dt_best_model.predict(X_test)
 
-# Valutazione SVC
-print("SVC Accuracy (Test):", accuracy_score(y_test, y_pred_svc_gs))
-print("Confusion Matrix (SVC):\n", confusion_matrix(y_test, y_pred_svc_gs))
-print("Classification Report (SVC):\n", classification_report(y_test, y_pred_svc_gs))
+# Valutazione DT
+print("DT Accuracy (Test):", accuracy_score(y_test, y_pred_dt_gs))
+print("Confusion Matrix (DT):\n", confusion_matrix(y_test, y_pred_dt_gs))
+print("Classification Report (DT):\n", classification_report(y_test, y_pred_dt_gs))
 
-'''
-# Modelli ottimizzati
-svc_best_model = SVC(kernel='rbf', C=1, gamma=1, probability=True, random_state=42)  # probability=True per Soft Voting
-rf_best_model = RandomForestClassifier(n_estimators=150, max_depth=7, class_weight=None, random_state=42)
-'''
-'''
-# Selezionare solo le colonne numeriche
-numerical_data = classification_data.select_dtypes(include=['float64', 'int64'])
 
-# Calcolare la matrice di correlazione
-correlation_matrix = numerical_data.corr()
+# Modelli individuali
+rf_model = RandomForestClassifier(max_depth=10, n_estimators=50, min_samples_leaf=2, min_samples_split=10, max_features=0.3, bootstrap=False, criterion='gini',random_state=42)
+dt_model = DecisionTreeClassifier(max_depth=3, max_features=0.7, min_samples_split=2, min_samples_leaf=2, random_state=42)
 
-# Stampare le correlazioni con la variabile target "AtRisk"
-print(correlation_matrix['AtRisk'].sort_values(ascending=False))
+# Ensemble con VotingClassifier
+ensemble_model = VotingClassifier(
+    estimators=[('rf', rf_model), ('dt', dt_model)],
+    voting='soft'
+)
 
-# Creare una heatmap
-plt.figure(figsize=(10, 8))
-sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', fmt='.2f', linewidths=0.5)
-plt.title('Matrice di Correlazione')
+# Training
+ensemble_model.fit(X_train, y_train)
+
+# Predizione e valutazione
+y_pred = ensemble_model.predict(X_test)
+y_pred_proba = ensemble_model.predict_proba(X_test)[:, 1]
+
+print("Accuracy (Ensemble):", accuracy_score(y_test, y_pred))
+print("Confusion Matrix (Ensemble):\n", confusion_matrix(y_test, y_pred))
+print("Classification Report (Ensemble):\n", classification_report(y_test, y_pred))
+
+# ROC Curve
+fpr, tpr, _ = roc_curve(y_test, y_pred_proba)
+roc_auc = roc_auc_score(y_test, y_pred_proba)
+
+plt.figure()
+plt.plot(fpr, tpr, label=f'ROC Curve (AUC = {roc_auc:.2f})')
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title('ROC Curve')
+plt.legend()
 plt.show()
-'''
+
+# Precision-Recall Curve
+precision, recall, _ = precision_recall_curve(y_test, y_pred_proba)
+
+plt.figure()
+plt.plot(recall, precision, label="Precision-Recall Curve")
+plt.xlabel('Recall')
+plt.ylabel('Precision')
+plt.title('Precision-Recall Curve')
+plt.legend()
+plt.show()
+
+# Calcolo dei dati per la learning curve
+train_sizes, train_scores, test_scores = learning_curve(
+    ensemble_model, X_balanced_scaled, y_balanced, cv=5, scoring='accuracy', n_jobs=-1, random_state=42
+)
+
+# Calcolare media e deviazione standard
+train_scores_mean = np.mean(train_scores, axis=1)
+train_scores_std = np.std(train_scores, axis=1)
+test_scores_mean = np.mean(test_scores, axis=1)
+test_scores_std = np.std(test_scores, axis=1)
+
+sns.set_theme(style="darkgrid")
+
+# Creazione del grafico
+plt.figure(figsize=(10, 6))
+
+# Linea e intervallo per i punteggi di training
+plt.plot(train_sizes, train_scores_mean, 'o-', label="Training Score", color="tab:blue")
+plt.fill_between(
+    train_sizes,
+    train_scores_mean - train_scores_std,
+    train_scores_mean + train_scores_std,
+    alpha=0.2,
+    color="tab:blue"
+)
+
+# Linea e intervallo per i punteggi di validazione
+plt.plot(train_sizes, test_scores_mean, 'o-', label="Validation Score", color="tab:green")
+plt.fill_between(
+    train_sizes,
+    test_scores_mean - test_scores_std,
+    test_scores_mean + test_scores_std,
+    alpha=0.2,
+    color="tab:green"
+)
+
+# Etichette e dettagli del grafico
+plt.title("Learning Curve for VotingClassifier", fontsize=16)
+plt.xlabel("Training Instances", fontsize=14)
+plt.ylabel("Score", fontsize=14)
+plt.legend(fontsize=12)
+plt.grid(alpha=0.6)
+plt.show()
+
+
+
+
+
 
