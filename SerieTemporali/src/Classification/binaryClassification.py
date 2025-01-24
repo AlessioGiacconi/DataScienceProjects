@@ -7,7 +7,7 @@ from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, VotingClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, roc_auc_score, roc_curve, \
-    precision_recall_curve
+    precision_recall_curve, average_precision_score
 from sklearn.model_selection import train_test_split, StratifiedKFold, cross_val_score, learning_curve
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
@@ -47,7 +47,7 @@ def plot_roc_curves(y_test, y_pred_probas, model_names, approximate=False, point
 
 base_dir = Path(__file__).resolve().parent
 
-file_path = 'C:\\Users\\falco\\PycharmProjects\\ProgettoSerieTemporali\\DataScienceProjects\\SerieTemporali\\Dataset\\clean_dataset.csv'
+file_path = 'C:\\Users\\falco\\PycharmProjects\\ProgettoSerieTemporali\\DataScienceProjects\\SerieTemporali\\Dataset\\clean_dataset_customerID.csv'
 
 df_csv = pd.read_csv(file_path)
 
@@ -393,7 +393,7 @@ print("Classification Report (DT):\n", classification_report(y_test, y_pred_dt_g
 
 
 # Modelli individuali
-rf_model = RandomForestClassifier(max_depth=10, n_estimators=50, min_samples_leaf=2, min_samples_split=10, max_features=0.3, bootstrap=False, criterion='gini',random_state=42)
+rf_model = RandomForestClassifier(max_depth=10, n_estimators=100, min_samples_leaf=2, min_samples_split=10, max_features=0.7, bootstrap=False, criterion='gini',random_state=42)
 dt_model = DecisionTreeClassifier(max_depth=3, max_features=0.7, min_samples_split=2, min_samples_leaf=2, random_state=42)
 
 # Ensemble con VotingClassifier
@@ -417,23 +417,32 @@ print("Classification Report (Ensemble):\n", classification_report(y_test, y_pre
 fpr, tpr, _ = roc_curve(y_test, y_pred_proba)
 roc_auc = roc_auc_score(y_test, y_pred_proba)
 
-plt.figure()
-plt.plot(fpr, tpr, label=f'ROC Curve (AUC = {roc_auc:.2f})')
-plt.xlabel('False Positive Rate')
-plt.ylabel('True Positive Rate')
-plt.title('ROC Curve')
-plt.legend()
+plt.figure(figsize=(8, 6))  # Aumenta la dimensione della figura
+plt.plot(fpr, tpr, linestyle='-', label=f'ROC Curve (AUC = {roc_auc:.2f})', color='blue')  # Linea spezzata
+plt.plot([0, 1], [0, 1], linestyle='--', color='black')  # Linea casuale
+plt.grid(alpha=0.3)  # Aggiunge una griglia trasparente
+plt.xlabel('False Positive Rate', fontsize=12)
+plt.ylabel('True Positive Rate', fontsize=12)
+plt.title('ROC Curve', fontsize=14)
+plt.legend(loc='lower right', fontsize=10)
+plt.tight_layout()
 plt.show()
+
 
 # Precision-Recall Curve
 precision, recall, _ = precision_recall_curve(y_test, y_pred_proba)
+average_precision = average_precision_score(y_test, y_pred_proba)
 
-plt.figure()
-plt.plot(recall, precision, label="Precision-Recall Curve")
-plt.xlabel('Recall')
-plt.ylabel('Precision')
-plt.title('Precision-Recall Curve')
-plt.legend()
+plt.figure(figsize=(8, 6))  # Dimensione del grafico
+plt.step(recall, precision, where='post', label=f'Binary PR curve (AP = {average_precision:.2f})', color='blue')
+plt.fill_between(recall, precision, step='post', alpha=0.2, color='blue')  # Riempie l'area sotto la curva
+plt.axhline(y=average_precision, color='red', linestyle='--', label=f'Avg. precision={average_precision:.2f}')  # Linea di precisione media
+plt.xlabel('Recall', fontsize=12)
+plt.ylabel('Precision', fontsize=12)
+plt.title('Precision-Recall Curve for VotingClassifier', fontsize=14)
+plt.legend(loc='lower left', fontsize=10)
+plt.grid(alpha=0.3)
+plt.tight_layout()
 plt.show()
 
 # Calcolo dei dati per la learning curve

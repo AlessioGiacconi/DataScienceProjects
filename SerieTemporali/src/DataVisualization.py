@@ -7,7 +7,7 @@ import squarify as sq
 
 base_dir = Path(__file__).resolve().parent
 
-file_path = base_dir.parent / 'Dataset' / 'clean_dataset.csv'
+file_path = base_dir.parent / 'Dataset' / 'clean_dataset_customerID.csv'
 
 df_csv = pd.read_csv(file_path)
 
