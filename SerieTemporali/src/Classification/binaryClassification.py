@@ -14,6 +14,36 @@ from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.utils import resample
 from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import ConfusionMatrixDisplay
+
+# ============================
+# Funzione per curva ROC approssimata
+# ============================
+def plot_roc_curves(y_test, y_pred_probas, model_names, approximate=False, points=10):
+    plt.figure(figsize=(10, 6))
+    for y_pred_proba, model_name in zip(y_pred_probas, model_names):
+        # Calcolo FPR, TPR e AUC
+        fpr, tpr, thresholds = roc_curve(y_test, y_pred_proba)
+        roc_auc = roc_auc_score(y_test, y_pred_proba)
+
+        if approximate:
+            # Approssimazione riducendo i punti
+            thresholds = np.linspace(0, 1, points)  # Soglie ridotte
+            fpr = np.interp(thresholds, np.linspace(0, 1, len(fpr)), fpr)
+            tpr = np.interp(thresholds, np.linspace(0, 1, len(tpr)), tpr)
+
+        # Plot della curva ROC
+        plt.plot(fpr, tpr, label=f'{model_name} (AUC = {roc_auc:.2f})')
+
+    # Linea diagonale (random classifier)
+    plt.plot([0, 1], [0, 1], 'k--', lw=2, label="Random Classifier")
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('ROC Curve')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+
 
 base_dir = Path(__file__).resolve().parent
 
@@ -237,6 +267,51 @@ predictions = {
     "LDA": y_pred_lda
 }
 
+for model_name, y_pred in predictions.items():
+    ConfusionMatrixDisplay.from_predictions(y_test, y_pred, cmap='Blues')
+    plt.title(f"Confusion Matrix - {model_name}")
+    plt.show()
+
+# ============================
+# Generazione curve ROC
+# ============================
+
+# Probabilità previste per ciascun modello
+y_pred_proba_rf = rf_model.predict_proba(X_test)[:, 1]
+y_pred_proba_svc = svc_model.decision_function(X_test)  # Per SVC usa decision_function
+y_pred_proba_log_reg = log_reg.predict_proba(X_test)[:, 1]
+y_pred_proba_dt = dt_model.predict_proba(X_test)[:, 1]
+y_pred_proba_gb = gb_model.predict_proba(X_test)[:, 1]
+y_pred_proba_lda = lda_model.predict_proba(X_test)[:, 1]
+
+# Nome dei modelli
+model_names = [
+    "Random Forest",
+    "SVC",
+    "Logistic Regression",
+    "Decision Tree",
+    "Gradient Boosting",
+    "LDA"
+]
+
+# Lista di probabilità previste
+y_pred_probas = [
+    y_pred_proba_rf,
+    y_pred_proba_svc,
+    y_pred_proba_log_reg,
+    y_pred_proba_dt,
+    y_pred_proba_gb,
+    y_pred_proba_lda
+]
+
+# Plot curve ROC fluide
+print("Plotting smooth ROC curves...")
+plot_roc_curves(y_test, y_pred_probas, model_names, approximate=False)
+
+# Plot curve ROC approssimate
+print("Plotting approximate ROC curves...")
+plot_roc_curves(y_test, y_pred_probas, model_names, approximate=True, points=3)
+
 # Crea un DataFrame con le previsioni
 predictions_df = pd.DataFrame(predictions)
 
@@ -404,6 +479,7 @@ plt.ylabel("Score", fontsize=14)
 plt.legend(fontsize=12)
 plt.grid(alpha=0.6)
 plt.show()
+
 
 
 
