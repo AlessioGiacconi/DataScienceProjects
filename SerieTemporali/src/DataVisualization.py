@@ -44,11 +44,11 @@ country_invoice_counts = country_invoice_counts.sort_values(ascending=False)
 # Apply square root to the values for square scale
 sqrt_values = np.sqrt(country_invoice_counts)
 
-# Plot the data
+# Plot the data (scala quadrata)
 plt.figure(figsize=(14,8))
 sns.barplot(x=country_invoice_counts.index, y=sqrt_values, color="skyblue", edgecolor="black")
 
-plt.title("Numero di acquisti (Invoices) per Stato - Scala Quadrata", fontsize=16)
+plt.title("Numero di acquisti per Stato - Scala Quadrata", fontsize=16)
 plt.xlabel("Country", fontsize=12)
 plt.ylabel("Numero di acquisti", fontsize=12)
 plt.xticks(rotation=45, ha='right', fontsize=10)
