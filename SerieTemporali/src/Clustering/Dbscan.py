@@ -10,8 +10,8 @@ from sklearn.decomposition import PCA
 from mpl_toolkits.mplot3d import Axes3D
 
 base_dir = Path(__file__).resolve().parent
-print(base_dir)
-file_path = 'C:\\Users\\falco\\PycharmProjects\\ProgettoSerieTemporali\\DataScienceProjects\\SerieTemporali\\Dataset\\clean_dataset.csv'
+
+file_path = base_dir.parent.parent / 'Dataset' / 'clean_dataset.csv'
 
 df_csv = pd.read_csv(file_path)
 
@@ -71,7 +71,7 @@ scatter = ax.scatter(
 )
 
 # Titoli e assi
-ax.set_title('DBSCAN Clustering senza PCA')
+ax.set_title('DBSCAN Clustering')
 ax.set_xlabel('Recency')
 ax.set_ylabel('Frequency')
 ax.set_zlabel('Monetary')

@@ -6,11 +6,12 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import silhouette_score
 import numpy as np
 from sklearn.metrics import silhouette_samples
+from mpl_toolkits.mplot3d import Axes3D
 
 
 base_dir = Path(__file__).resolve().parent
-print(base_dir)
-file_path = 'C:\\Users\\falco\\PycharmProjects\\ProgettoSerieTemporali\\DataScienceProjects\\SerieTemporali\\Dataset\\clean_dataset.csv'
+
+file_path = base_dir.parent.parent / 'Dataset' / 'clean_dataset.csv'
 
 df_csv = pd.read_csv(file_path)
 
@@ -66,12 +67,42 @@ cluster_summary = rfm.groupby('Cluster').agg({
 print(cluster_summary)
 
 # Visualizzare il numero di clienti per cluster
-plt.figure(figsize=(8, 6))
+fig = plt.figure(figsize=(10, 8))
+ax = fig.add_subplot(111, projection='3d')
+
+# Scatter plot con i clustercolors = ['blue', 'orange', 'green', 'red']
+for cluster in rfm['Cluster'].unique():
+    cluster_data = rfm[rfm['Cluster'] == cluster]
+    ax.scatter(
+        cluster_data['Recency'],
+        cluster_data['Frequency'],
+        cluster_data['Monetary'],
+        label=f'Cluster {cluster}',
+        s=40,
+        alpha=0.6
+    )
+
+centroids = kmeans.cluster_centers_
+ax.scatter(centroids[:, 0], centroids[:, 1], s=20, c='black', label='Centroidi', marker='o')
+
+ax.view_init(elev=20, azim=220)
+
+ax.set_title('K-Means Clustering', fontsize=16)
+ax.set_xlabel('Recency', fontsize=12)
+ax.set_ylabel('Frequency', fontsize=12)
+ax.set_zlabel('Monetary', fontsize=12)
+ax.legend()
+ax.grid(True, linestyle='--', alpha=0.7)
+plt.tight_layout()
+
+plt.show()
+
+'''plt.figure(figsize=(8, 6))
 cluster_summary['Num_Customers'].plot(kind='bar', color='skyblue')
 plt.title('Distribuzione dei Clienti per Cluster')
 plt.xlabel('Cluster')
 plt.ylabel('Numero di Clienti')
-plt.show()
+plt.show()'''
 
 # Calcolare i silhouette scores
 # Calcolare i silhouette scores
