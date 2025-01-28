@@ -102,14 +102,37 @@ df_filtered['PriceRange'] = pd.cut(df_filtered['UnitPrice'], bins=bins, labels=l
 
 
 revenue_by_price_range = df_filtered.groupby('PriceRange', observed=False)['TotalRevenue'].sum()
-colors = colormaps['Pastel1'](np.linspace(0, 1, len(revenue_by_price_range)))
-explode = [0.1, 0.05, 0.05, 0.05, 0.01]  # Esplodi la prima sezione più delle altre
+colors = ['red', 'green', 'orange', 'lightblue', 'yellow']
+explode = [0.1, 0.1, 0.1, 0.1, 0.25]  # Esplodi la prima sezione più delle altre
 
-#Grafico a torta che rappresenta i prodotti più venduti in base alle fasce di prezzo
-plt.figure(figsize=(8, 8))
-plt.pie(revenue_by_price_range.values, labels=revenue_by_price_range.index, autopct='%1.1f%%',
-        startangle=140, colors=colors, explode=explode, wedgeprops={'edgecolor': 'black', 'linewidth': 1},
-        labeldistance=1.1)  # Aumenta la distanza di tutte le etichette
-plt.title("Percentuale degli Introiti per Fascia di Prezzo (Labeldistance)")
+# Grafico a torta con ombra e spazio tra le fette
+# Grafico a torta con ombra e spazio tra le fette
+plt.figure(figsize=(13, 13))
+
+# Crea il grafico a torta con percentuali sugli spicchi
+wedges, texts, autotexts = plt.pie(revenue_by_price_range.values,
+                                   labels=None,  # Rimuove le etichette dei nomi dagli spicchi
+                                   autopct='%1.2f%%',  # Mostra le percentuali sugli spicchi
+                                   startangle=140,
+                                   colors=colors,
+                                   explode=explode,
+                                   shadow=True,  # Aggiungi ombra
+                                   wedgeprops={'edgecolor': 'black', 'linewidth': 1})  # Bordo delle fette
+
+# Personalizza la posizione e lo stile delle percentuali (autotexts)
+for autotext in autotexts:
+    autotext.set_color('black')  # Cambia il colore delle percentuali
+    autotext.set_fontsize(15)    # Cambia la dimensione del font
+
+# Aggiungi una legenda
+plt.legend(wedges, revenue_by_price_range.index,  # Fasce di prezzo come etichette
+           title="Fasce di Prezzo",
+           loc="center left",  # Posizione della legenda
+           bbox_to_anchor=(1, 0, 0.5, 1))  # Sposta la legenda fuori dal grafico
+
+# Aggiungi un titolo
+plt.title("Percentuale degli Introiti per Fascia di Prezzo", fontsize=18)
+
+# Mostra il grafico
 plt.show()
 
