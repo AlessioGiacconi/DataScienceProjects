@@ -85,8 +85,9 @@ product_stats = df_csv.groupby('Description').agg({
 cancellation_stats = cancellation_stats.reset_index()  # Assicurarsi che l'indice sia un campo
 classification_data = pd.merge(cancellation_stats, product_stats, on='Description', how='left')
 classification_data['AtRisk'] = (classification_data['CancellationRate'] > 3).astype(int)
-classification_data['Country'] = classification_data['Country'].astype('category').cat.codes.astype('int64')
 
+classification_data['Country'] = classification_data['Country'].astype('category').cat.codes.astype('int64')
+classification_data.info()
 '''
 # Selezionare solo le colonne numeriche
 numerical_data = classification_data.select_dtypes(include=['float64', 'int64'])
@@ -98,9 +99,10 @@ correlation_matrix = numerical_data.corr()
 print(correlation_matrix['AtRisk'].sort_values(ascending=False))
 
 # Creare una heatmap
-plt.figure(figsize=(10, 8))
+plt.figure(figsize=(8, 6))
 sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', fmt='.2f', linewidths=0.5)
 plt.title('Matrice di Correlazione')
+plt.tight_layout()
 plt.show()
 '''
 
@@ -257,6 +259,31 @@ print("LDA Accuracy (Downsampling):", accuracy_score(y_test, y_pred_lda))
 print("Confusion Matrix (LDA):\n", confusion_matrix(y_test, y_pred_lda))
 print("Classification Report (LDA):\n", classification_report(y_test, y_pred_lda))
 
+# Raccogliere i punteggi di cross-validation
+model_scores = {
+    "Logistic Regression": log_reg_cv_scores,
+    "Decision Tree": dt_cv_scores,
+    "SVC": cross_val_scores_svc,
+    "Random Forest": cross_val_scores_rf,
+    "Gradient Boosting": gb_cv_scores,
+    "LDA": lda_cv_scores,
+}
+
+# Calcolare le medie e le deviazioni standard
+model_means = [np.mean(scores) for scores in model_scores.values()]
+model_stds = [np.std(scores) for scores in model_scores.values()]
+model_names = list(model_scores.keys())
+
+# Creare il grafico
+plt.figure(figsize=(10, 6))
+plt.barh(model_names, model_means, xerr=model_stds, color=['red', 'orange', 'blue', 'yellow', 'green', 'purple'], capsize=5)
+plt.xlabel('Mean Accuracy')
+plt.ylabel('Algorithm')
+plt.title('Cross validation scores')
+plt.grid(axis='x', linestyle='--', alpha=0.7)
+plt.tight_layout()
+plt.show()
+
 # Genera previsioni da ciascun modello
 predictions = {
     "Random Forest": y_pred_rf,
@@ -267,10 +294,38 @@ predictions = {
     "LDA": y_pred_lda
 }
 
-for model_name, y_pred in predictions.items():
-    ConfusionMatrixDisplay.from_predictions(y_test, y_pred, cmap='Blues')
-    plt.title(f"Confusion Matrix - {model_name}")
-    plt.show()
+# Configura il layout della griglia per i subplot
+n_models = len(predictions)
+n_cols = 3  # Numero di colonne nel layout
+n_rows = (n_models + n_cols - 1) // n_cols  # Calcolo dinamico delle righe necessarie
+
+fig, axes = plt.subplots(n_rows, n_cols, figsize=(15, 5 * n_rows))
+axes = axes.ravel()  # Rende il grid di assi iterabile
+
+# Itera sui modelli e genera le heatmap
+for idx, (model_name, y_pred) in enumerate(predictions.items()):
+    cm = confusion_matrix(y_test, y_pred)
+    sns.heatmap(
+        cm,
+        annot=True,
+        fmt='d',
+        cmap='Blues',
+        ax=axes[idx],
+        cbar=True,  # Aggiunge la colorbar
+        cbar_kws={"shrink": 0.8},  # Regola la dimensione della colorbar
+        annot_kws={"size": 18}  # Modifica il font delle annotazioni
+    )
+    axes[idx].set_title(f"Confusion Matrix - {model_name}", fontsize=16)  # Aumenta il font del titolo
+    axes[idx].set_xlabel("Predicted label", fontsize=14)  # Aumenta il font dell'asse X
+    axes[idx].set_ylabel("True label", fontsize=14)  # Aumenta il font dell'asse Y
+    axes[idx].tick_params(axis='both', labelsize=12)  # Font dei tick delle assi
+
+# Nasconde eventuali assi vuoti
+for idx in range(len(predictions), len(axes)):
+    axes[idx].axis('off')
+
+plt.tight_layout()
+plt.show()
 
 # ============================
 # Generazione curve ROC
@@ -322,6 +377,7 @@ correlation_matrix = predictions_df.corr()
 plt.figure(figsize=(10, 8))
 sns.heatmap(correlation_matrix, annot=True, cmap="coolwarm", fmt=".2f", linewidths=0.5)
 plt.title("Correlazioni tra le Previsioni dei Modelli")
+plt.tight_layout()
 plt.show()
 
 # =========================

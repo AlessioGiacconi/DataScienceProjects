@@ -28,9 +28,9 @@ wrapped_labels = [textwrap.fill(label, width=20) for label in cancellations_by_p
 
 #Grafico a barre orizzontali sui prodotti più restituiti
 plt.figure(figsize=(12, 8))
-sns.barplot(y=wrapped_labels, x=cancellations_by_product.values, palette="coolwarm_r")
-plt.title("Top 10 Prodotti Più Cancellati")
-plt.xlabel("Quantità Totale Cancellata")
+sns.barplot(y=wrapped_labels, x=cancellations_by_product.values, palette="viridis")
+plt.title("Top 10 Prodotti Più Cancellati", fontsize=18)
+plt.xlabel("Quantità Totale Cancellata", fontsize=15)
 plt.ylabel("Descrizione Prodotto")
 plt.yticks(fontsize=8)
 plt.grid(axis='x', linestyle='--', alpha=0.7)
@@ -47,10 +47,11 @@ country_sales_sqrt = country_sales_sqrt.sort_values(ascending=False)
 #Grafico a barre orizzontali sui costi sostenuti per Stato
 plt.figure(figsize=(12, 10))
 sns.barplot(y=country_sales_sqrt.index, x=country_sales_sqrt.values, palette="coolwarm_r", alpha=0.8)
-plt.title("Distribuzione dei costi sostenuti per Stato (scala radice quadrata)")
-plt.xlabel("√ Totale fatturato (£)")
-plt.ylabel("Paese")
+plt.title("Distribuzione dei costi sostenuti per Stato (scala radice quadrata)", fontsize=17)
+plt.xlabel("√ Totale fatturato (£)", fontsize=14)
+plt.ylabel("Paese", fontsize=14)
 plt.grid(axis='x', linestyle='--', alpha=0.7)
+plt.tight_layout()
 plt.show()
 
 country_quantity = df_csv.groupby('Country')['Quantity'].sum()
@@ -60,17 +61,19 @@ country_quantity_sqrt = country_quantity_sqrt.sort_values(ascending=False)
 #Grafico a barre orizzontali sulle quantità vendute per Stato
 plt.figure(figsize=(12, 10))
 sns.barplot(y=country_quantity_sqrt.index, x=country_quantity_sqrt.values, palette="coolwarm_r", alpha=0.8)
-plt.title("Distribuzione delle quantità di prodotti venduti per Stato")
-plt.xlabel("√ Totale venduto")
-plt.ylabel("Paese")
+plt.title("Distribuzione delle quantità di prodotti venduti per Stato", fontsize=17)
+plt.xlabel("√ Totale venduto", fontsize=14)
+plt.ylabel("Paese", fontsize=14)
 plt.grid(axis='x', linestyle='--', alpha=0.7)
+plt.tight_layout()
+plt.show()
 
 #Grafico sulla distribuzione delle vendite per fascia oraria
 plt.figure(figsize=(12, 6))
 sns.histplot(data=df_csv_filtered, x='Hour', weights='Quantity', discrete=True, kde=True, color='orange', alpha=0.7)
-plt.title("Distribuzione della quantità di prodotti acquistati per fascia oraria (£)")
-plt.xlabel("Ora del giorno")
-plt.ylabel("Quantità totale acquistata")
+plt.title("Distribuzione della quantità di prodotti acquistati per fascia oraria (£)", fontsize=17)
+plt.xlabel("Ora del giorno", fontsize=14)
+plt.ylabel("Quantità totale acquistata", fontsize=14)
 plt.xticks(range(0, 24))
 plt.grid(axis='y', linestyle='--', alpha=0.7)
 plt.show()
@@ -83,9 +86,9 @@ df_filtered = df_csv[df_csv['UnitPrice'] < 100].copy()  # Imposta un limite mass
 #Grafico sulla distribuzione delle vendite in base al prezzo di vendita
 plt.figure(figsize=(12, 6))
 sns.histplot(df_filtered['UnitPrice'], kde=True, bins=30, color='skyblue', alpha=0.7, label='Distribuzione')
-plt.title("Distribuzione del Prezzo di Acquisto")
-plt.xlabel("Prezzo Unitario (£)")
-plt.ylabel("Frequenza")
+plt.title("Distribuzione del Prezzo di Acquisto", fontsize=17)
+plt.xlabel("Prezzo Unitario (£)", fontsize=14)
+plt.ylabel("Frequenza", fontsize=14)
 plt.legend()
 plt.grid(axis='y', linestyle='--', alpha=0.7)
 plt.xlim(0, 50)
@@ -122,16 +125,18 @@ wedges, texts, autotexts = plt.pie(revenue_by_price_range.values,
 # Personalizza la posizione e lo stile delle percentuali (autotexts)
 for autotext in autotexts:
     autotext.set_color('black')  # Cambia il colore delle percentuali
-    autotext.set_fontsize(15)    # Cambia la dimensione del font
+    autotext.set_fontsize(18)    # Cambia la dimensione del font
 
 # Aggiungi una legenda
 plt.legend(wedges, revenue_by_price_range.index,  # Fasce di prezzo come etichette
            title="Fasce di Prezzo",
+           title_fontsize=20,  # Aumenta la dimensione del titolo della legenda
            loc="center left",  # Posizione della legenda
-           bbox_to_anchor=(1, 0, 0.5, 1))  # Sposta la legenda fuori dal grafico
+           bbox_to_anchor=(-0.15, 0.5),
+           prop={'size': 18})  # Aumenta la dimensione del font della legenda
 
 # Aggiungi un titolo
-plt.title("Percentuale degli Introiti per Fascia di Prezzo", fontsize=18)
+plt.title("Percentuale degli Introiti per Fascia di Prezzo", fontsize=23)
 
 # Mostra il grafico
 plt.show()

@@ -8,9 +8,11 @@ file_path = base_dir.parent / 'Dataset' / 'Online_Retail.csv'
 df_csv = pd.read_csv(file_path)
 df_csv.info()
 
+new = df_csv[df_csv['StockCode']=='22145']
+print(new)
 df_csv = df_csv.dropna(subset=['CustomerID'])
 
-df_csv.info()
+#df_csv.info()
 
 unit_price_not_zero = df_csv[df_csv['UnitPrice'] > 0].copy()
 

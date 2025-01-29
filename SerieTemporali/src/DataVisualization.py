@@ -48,9 +48,9 @@ sqrt_values = np.sqrt(country_invoice_counts)
 plt.figure(figsize=(14,8))
 sns.barplot(x=country_invoice_counts.index, y=sqrt_values, color="skyblue", edgecolor="black")
 
-plt.title("Numero di acquisti per Stato - Scala Quadrata", fontsize=16)
-plt.xlabel("Country", fontsize=12)
-plt.ylabel("Numero di acquisti", fontsize=12)
+plt.title("Numero di acquisti per Stato - Scala Quadrata", fontsize=17)
+plt.xlabel("Country", fontsize=14)
+plt.ylabel("Numero di acquisti", fontsize=14)
 plt.xticks(rotation=45, ha='right', fontsize=10)
 
 yticks = plt.gca().get_yticks()
@@ -102,7 +102,7 @@ ax1.set_ylabel('Numero di Transazioni', fontsize=12, color='coral')
 ax1.tick_params(axis='y', labelcolor='coral')
 ax1.set_xlabel('Mese', fontsize=12)
 ax1.tick_params(axis='x', rotation=45, labelsize=10)
-ax1.set_title('Numero di Transazioni e Spese Totali per Mese', fontsize=16)
+ax1.set_title('Numero di Transazioni e Spese Totali per Mese', fontsize=17)
 
 # Create a second y-axis for the total revenue
 ax2 = ax1.twinx()
