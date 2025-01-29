@@ -1,13 +1,10 @@
 import pandas as pd
 from pathlib import Path
 from sklearn.cluster import DBSCAN
-from sklearn.metrics import silhouette_score
 from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import NearestNeighbors
 import matplotlib.pyplot as plt
 import numpy as np
-from sklearn.decomposition import PCA
-from mpl_toolkits.mplot3d import Axes3D
 
 base_dir = Path(__file__).resolve().parent
 

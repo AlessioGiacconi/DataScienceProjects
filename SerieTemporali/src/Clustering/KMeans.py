@@ -3,10 +3,8 @@ from pathlib import Path
 from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
-from sklearn.metrics import silhouette_score
 import numpy as np
 from sklearn.metrics import silhouette_samples
-from mpl_toolkits.mplot3d import Axes3D
 
 
 base_dir = Path(__file__).resolve().parent
