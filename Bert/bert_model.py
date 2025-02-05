@@ -1,6 +1,6 @@
 import pandas as pd
 from pathlib import Path
-import torch
+
 
 
 base_dir = Path(__file__).resolve().parent
@@ -18,8 +18,7 @@ label_mapping = {
 df_csv['Suicide'] = df_csv['Suicide'].map(label_mapping)
 
 
-# Controllare la disponibilità della GPU
-device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+
 
 
 

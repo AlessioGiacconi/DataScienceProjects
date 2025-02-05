@@ -41,6 +41,8 @@ def clean_tweet(text):
     if isinstance(text, str):
         # Converti tutto in minuscolo
         text = text.lower()
+        # Normalizzazione apostrofi
+        text = text.replace('’', "'").replace('‘', "'").replace('`', "'")
         # Rimuovi tag HTML
         text = re.sub(r'<.*?>', '', text)
         # Rimuove gli URL
