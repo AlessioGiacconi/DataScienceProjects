@@ -9,7 +9,7 @@ base_dir = Path(__file__).resolve().parent
 
 file_path = base_dir / 'Dataset' / 'Suicide_Dataset.csv'
 
-df_csv = pd.read_csv(file_path)
+df_csv = pd.read_csv(file_path, encoding='utf-8')
 df_csv.info()
 
 nltk.download('stopwords')
@@ -35,6 +35,11 @@ def remove_emojis(text):
     )
     return emoji_pattern.sub(r'', text)
 
+def clean_non_ascii(text):
+    if isinstance(text, str):
+        return re.sub(r'[^\x00-\x7f]', '', text)
+    return text
+
 
 # Funzione per pulire i tweet, rimuovendo la punteggiatura escluso '#'
 def clean_tweet(text):
@@ -49,6 +54,8 @@ def clean_tweet(text):
         text = re.sub(r'http\S+|www.\S+', '', text)
         # Rimuovi emoji
         text = remove_emojis(text)
+        # Rimuove i caratteri non ascii
+        text = clean_non_ascii(text)
         # Rimuove la punteggiatura mantenendo solo '#'
         cleaned_text = ''.join(char for char in text if char.isalpha() or char.isspace() or char == '#')
         # Filtra e rimuovi le stopwords
