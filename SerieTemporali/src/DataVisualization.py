@@ -25,7 +25,7 @@ plt.figure(figsize=(14, 7))
 sns.histplot(country_sales_sqrt, kde=True, bins=100, color="skyblue", alpha=0.6, label="Distribuzione (Radice Quadrata)")
 
 # Personalizzazione del grafico
-plt.title("Distribuzione dei Costi per Stato (Scala Radice Quadrata - Tutti gli Stati)")
+plt.title("Costi sostenuti per Stato (Scala Radice Quadrata - Tutti gli Stati)")
 plt.xlabel("√ Totale Fatturato (€)")
 plt.ylabel("Densità")
 plt.legend()
@@ -75,7 +75,7 @@ sq.plot(
     color = sns.color_palette("viridis", len(top_products))
 )
 
-plt.title("Distribuzione delle Vendite per Prodotto (Top 25)", fontsize=16)
+plt.title("Top 25 vendite per prodotto", fontsize=16)
 plt.axis('off')
 plt.tight_layout()
 
@@ -140,7 +140,7 @@ plt.figure(figsize=(12,8))
 quantity_distribution.plot(kind='bar', color='sandybrown', edgecolor='black')
 
 # Add title and lables
-plt.title('Distribuzione delle Fatture per Fasce di Quantità di Articoli Acquistati', fontsize=16)
+plt.title('Fatture per Fasce di Quantità di Articoli Acquistati', fontsize=16)
 plt.xlabel('Fasce di Quantità di Articoli', fontsize=12)
 plt.ylabel('Numero di Fatture', fontsize=12)
 plt.xticks(rotation=0, fontsize=10)
