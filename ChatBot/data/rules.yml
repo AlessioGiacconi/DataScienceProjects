@@ -11,3 +11,8 @@ rules:
   steps:
   - intent: bot_challenge
   - action: utter_iamabot
+
+- rule: Cerca un film per titolo
+  steps:
+  - intent: cerca_info_film
+  - action: action_cerca_film

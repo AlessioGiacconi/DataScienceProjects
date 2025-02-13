@@ -8,6 +8,21 @@ intents:
   - mood_great
   - mood_unhappy
   - bot_challenge
+  - cerca_info_film
+
+entities:
+- title
+
+slots:
+  title:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: title
+
+actions:
+- action_cerca_film
 
 responses:
   utter_greet:

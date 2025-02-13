@@ -1,1 +1,5 @@
 ChatBot/dataset/*.csv
+.rasa
+ChatBot/models
+ChatBot/actions/__pycache__/__init__.cpython-39.pyc
+ChatBot/actions/__pycache__/actions.cpython-39.pyc

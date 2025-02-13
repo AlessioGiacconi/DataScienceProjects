@@ -28,3 +28,8 @@ stories:
   - action: utter_did_that_help
   - intent: deny
   - action: utter_goodbye
+
+- story: Utente cerca informazioni su un film
+  steps:
+  - intent: cerca_info_film
+  - action: action_cerca_film
