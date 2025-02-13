@@ -30,7 +30,7 @@ from typing import Any, Text, Dict, List
 from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
 
-df = pd.read_csv("dataset\\tmdb_movies.csv")
+df = pd.read_csv("./dataset/tmdb_movies.csv")
 
 class ActionCercaFilm(Action):
     def name(self):
