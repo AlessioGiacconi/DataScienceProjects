@@ -1,18 +1,27 @@
 version: "3.1"
 
 rules:
+- rule: Saluta quando l'utente saluta
+  steps:
+  - intent: greet
+  - action: utter_greet
 
-- rule: Say goodbye anytime the user says goodbye
+- rule: Saluta l'utente quando dice arrivederci
   steps:
   - intent: goodbye
   - action: utter_goodbye
 
-- rule: Say 'I am a bot' anytime the user challenges
+- rule: Rispondi quando l'utente sfida il bot
   steps:
-  - intent: bot_challenge
+  - intent: bot_sfida
   - action: utter_iamabot
 
 - rule: Cerca un film per titolo
   steps:
   - intent: cerca_info_film
   - action: action_cerca_film
+
+- rule: Cerca film per genere
+  steps:
+  - intent: cerca_genere
+  - action: action_cerca_per_genere

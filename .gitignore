@@ -1,5 +1,4 @@
 ChatBot/rasa/dataset/*.csv
 .rasa
 ChatBot/rasa/models
-ChatBot/rasa/actions/__pycache__/__init__.cpython-39.pyc
-ChatBot/rasa/actions/__pycache__/actions.cpython-39.pyc
+*.pyc

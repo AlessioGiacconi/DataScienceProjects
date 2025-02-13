@@ -9,9 +9,11 @@ intents:
   - mood_unhappy
   - bot_challenge
   - cerca_info_film
+  - cerca_genere
 
 entities:
 - title
+- genres
 
 slots:
   title:
@@ -20,29 +22,36 @@ slots:
     mappings:
       - type: from_entity
         entity: title
+  genres:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: genres
 
 actions:
 - action_cerca_film
+- action_cerca_per_genere
 
 responses:
   utter_greet:
-  - text: "Hey! How are you?"
+  - text: "Ciao! Come posso aiutarti a trovare un film oggi? 🎬"
 
   utter_cheer_up:
-  - text: "Here is something to cheer you up:"
+  - text: "Ecco qualcosa per tirarti su di morale!"
     image: "https://i.imgur.com/nGF1K8f.jpg"
 
   utter_did_that_help:
-  - text: "Did that help you?"
+  - text: "Ti sono stato d'aiuto?"
 
   utter_happy:
-  - text: "Great, carry on!"
+  - text: "Fantastico, continua così! 🤗"
 
   utter_goodbye:
-  - text: "Bye"
+  - text: "Ciao, alla prossima! 👋"
 
   utter_iamabot:
-  - text: "I am a bot, powered by Rasa."
+  - text: "Sono un bot, alimentato da Rasa."
 
 session_config:
   session_expiration_time: 60
