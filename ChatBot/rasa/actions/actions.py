@@ -29,9 +29,9 @@ import pandas as pd
 from typing import Any, Text, Dict, List
 from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
-from actions.utils import translate_to_italian, translate_genre
+from actions.utils import translate_to_italian, translate_genre, translate_genre_ita_to_eng
 
-df = pd.read_csv("./dataset/tmdb_movies.csv")
+df = pd.read_csv("./dataset/tmdb_movies.csv").fillna("Dato non disponibile")
 
 class ActionCercaFilm(Action):
     def name(self):
@@ -66,18 +66,40 @@ class ActionCercaPerGenere(Action):
         return "action_cerca_per_genere"
 
     def run(self, dispatcher, tracker, domain):
-        genere = tracker.get_slot("genres")
+        genere_ita = tracker.get_slot("genres")  # Slot del genere in italiano
 
-        if genere:
-            genere_eng = translate_genre(genere)
-            film = df[df["genres"].fillna("").str.lower().apply(lambda x: any(g.strip() == genere_eng.lower() for g in x.split(',')))]
-            if not film.empty:
-                film_list = film["title"].tolist()[:5]
-                film_list_it = [translate_to_italian(title) for title in film_list]
-                dispatcher.utter_message(f"Ecco alcuni film di genere {genere}: \n" + "\n".join(film_list_it))
+        if genere_ita:
+            genere_eng = translate_genre_ita_to_eng(genere_ita)  # Traduciamo il genere
+
+            # Filtriamo i film con il genere richiesto
+            film_trovati = df[df["genres"].apply(lambda x: genere_eng.lower() in [g.strip().lower() for g in x.split(',')])]
+
+            if not film_trovati.empty:
+                film_list = film_trovati["title"].tolist()[:5]
+                dispatcher.utter_message(f"Ecco alcuni film di genere {genere_ita}:\n" + "\n".join(film_list))
             else:
-                dispatcher.utter_message(f"Non ho trovato film di genere {genere}. 😢")
+                dispatcher.utter_message(f"Non ho trovato film di genere {genere_ita}. 😢")
         else:
             dispatcher.utter_message("Per favore, dimmi un genere per cercare film. 🎬")
+
+        return []
+
+class ActionCercaPerRating(Action):
+    def name(self):
+        return "action_cerca_per_rating"
+
+    def run(self, dispatcher, tracker, domain):
+        rating = tracker.get_slot("rating")
+
+        if rating:
+            rating = float(rating)
+            film_trovati = df[df["vote_average"] >= rating]
+            if not film_trovati.empty:
+                film_list = film_trovati["title"].tolist()[:5]
+                dispatcher.utter_message(f"Ecco alcuni film con voto superiore a {rating}:\n" + "\n".join(film_list))
+            else:
+                dispatcher.utter_message(f"Non ho trovato film con un voto superiore a {rating}.")
+        else:
+            dispatcher.utter_message("Per favore, dimmi una valutazione per cercare film.")
 
         return []

@@ -38,3 +38,8 @@ stories:
   steps:
   - intent: cerca_genere
   - action: action_cerca_per_genere
+
+- story: Utente cerca film per valutazione
+  steps:
+  - intent: cerca_per_valutazione
+  - action: action_cerca_per_rating

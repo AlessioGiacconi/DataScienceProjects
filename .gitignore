@@ -2,3 +2,4 @@ ChatBot/rasa/dataset/*.csv
 .rasa
 ChatBot/rasa/models
 *.pyc
+ChatBot/models

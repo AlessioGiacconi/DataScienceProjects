@@ -86,3 +86,10 @@ nlu:
     - Ci sono film [fantascienza](genres)?
     - Voglio un film [drammatico](genres)
     - Mi consigli un film [romantico](genres)?
+
+- intent: cerca_per_valutazione
+  examples: |
+    - Elencami i film con voto superiore a [8](rating)
+    - Mostrami i film con rating più alto di [9](rating)
+    - Dimmi quali film hanno una votazione almeno pari a [6](rating)
+    - Quali sono i film che hanno un rating superiore a [5](rating)

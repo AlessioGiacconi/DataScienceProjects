@@ -14,6 +14,7 @@ intents:
 entities:
 - title
 - genres
+- rating
 
 slots:
   title:
@@ -28,10 +29,17 @@ slots:
     mappings:
       - type: from_entity
         entity: genres
+  rating:
+    type: float
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: rating
 
 actions:
 - action_cerca_film
 - action_cerca_per_genere
+- action_cerca_per_rating
 
 responses:
   utter_greet:
