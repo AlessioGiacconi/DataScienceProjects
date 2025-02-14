@@ -25,3 +25,8 @@ rules:
   steps:
   - intent: cerca_genere
   - action: action_cerca_per_genere
+
+- rule: Cerca film per lingua
+  steps:
+  - intent: cerca_per_lingua
+  - action: action_cerca_per_lingua

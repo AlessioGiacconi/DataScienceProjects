@@ -10,11 +10,14 @@ intents:
   - bot_challenge
   - cerca_info_film
   - cerca_genere
+  - cerca_per_valutazione
+  - cerca_per_lingua
 
 entities:
 - title
 - genres
 - rating
+- language
 
 slots:
   title:
@@ -35,11 +38,18 @@ slots:
     mappings:
       - type: from_entity
         entity: rating
+  language:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: language
 
 actions:
 - action_cerca_film
 - action_cerca_per_genere
 - action_cerca_per_rating
+- action_cerca_per_lingua
 
 responses:
   utter_greet:

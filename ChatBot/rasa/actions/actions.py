@@ -29,7 +29,7 @@ import pandas as pd
 from typing import Any, Text, Dict, List
 from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
-from actions.utils import translate_to_italian, translate_genre, translate_genre_ita_to_eng
+from actions.utils import translate_to_italian, translate_genre, translate_genre_ita_to_eng, translate_language_ita_to_iso
 
 df = pd.read_csv("./dataset/tmdb_movies.csv").fillna("Dato non disponibile")
 
@@ -103,3 +103,28 @@ class ActionCercaPerRating(Action):
             dispatcher.utter_message("Per favore, dimmi una valutazione per cercare film.")
 
         return []
+    
+
+class ActionCercaPerLingua(Action):
+    def name(self):
+        return "action_cerca_per_lingua"
+
+    def run(self, dispatcher, tracker, domain):
+        lingua_ita = tracker.get_slot("language")  # Slot della lingua in italiano
+
+        if lingua_ita:
+            lingua_eng = translate_language_ita_to_iso(lingua_ita)
+
+            # Filtra i film con la lingua richiesta
+            film_trovati = df[df["original_language"].str.lower() == lingua_eng.lower()]
+
+            if not film_trovati.empty:
+                film_list = film_trovati["title"].tolist()[:5]
+                dispatcher.utter_message(f"Ecco alcuni film in {lingua_ita}:\n" + "\n".join(film_list))
+            else:
+                dispatcher.utter_message(f"Non ho trovato film in {lingua_ita}. 😢")
+        else:
+            dispatcher.utter_message("Per favore, dimmi una lingua per cercare film. 🎬")
+
+        return []
+

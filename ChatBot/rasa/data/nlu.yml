@@ -93,3 +93,13 @@ nlu:
     - Mostrami i film con rating più alto di [9](rating)
     - Dimmi quali film hanno una votazione almeno pari a [6](rating)
     - Quali sono i film che hanno un rating superiore a [5](rating)
+
+- intent: cerca_per_lingua
+  examples: |
+    - Quali film sono in [italiano](language)?
+    - Mostrami film in [inglese](language)
+    - Voglio un film in [francese](language)
+    - Ci sono film in [spagnolo](language)?
+    - Film disponibili in [spagnolo](language)
+    - Voglio vedere un film di lingua [inglese](language)
+    - Dimmi dei film in [italiano](language)

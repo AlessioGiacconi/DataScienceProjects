@@ -31,6 +31,27 @@ genre_translation = {
     "western": "Western"
 }
 
+# Funzione per tradurre i codici lingua (IT → EN)
+language_translation = {
+    "inglese": "en",
+    "italiano": "it",
+    "francese": "fr",
+    "spagnolo": "es",
+    "tedesco": "de",
+    "giapponese": "ja",
+    "cinese": "zh",
+    "russo": "ru",
+    "portoghese": "pt",
+    "olandese": "nl",
+    "arabo": "ar",
+    "coreano": "ko",
+    "hindi": "hi"
+}
+
+# Funzione per tradurre la lingua dall'italiano al codice ISO
+def translate_language_ita_to_iso(language):
+    return language_translation.get(language.lower().strip(), language)
+
 def translate_genre(genre_list):
     genres = genre_list.split(',')
     return ', '.join([genre_translation.get(g.strip(), g.strip()) for g in genres])
