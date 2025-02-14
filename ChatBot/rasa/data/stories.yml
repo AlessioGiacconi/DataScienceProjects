@@ -43,3 +43,18 @@ stories:
   steps:
   - intent: cerca_per_valutazione
   - action: action_cerca_per_rating
+
+- story: Utente cerca film per lingua
+  steps:
+  - intent: cerca_per_lingua
+  - action: action_cerca_per_lingua
+
+- story: Utente cerca film randomico
+  steps:
+  - intent: cerca_film_random
+  - action: action_cerca_film_random
+
+- story: Utente cerca film per durata
+  steps:
+  - intent: cerca_per_durata
+  - action: action_cerca_per_durata

@@ -103,3 +103,23 @@ nlu:
     - Film disponibili in [spagnolo](language)
     - Voglio vedere un film di lingua [inglese](language)
     - Dimmi dei film in [italiano](language)
+
+- intent: cerca_film_random
+  examples: |
+    - Scegli un film per me
+    - Dammi un film a caso
+    - Suggeriscimi un film randomico
+    - Ho bisogno di un film a sorpresa
+    - Mostrami un film casuale
+    - Voglio un film scelto dal bot
+    - Film random, per favore
+    - Quale film dovrei guardare?
+    - Suggerisci un film qualsiasi
+
+- intent: cerca_per_durata
+  examples: |
+    - Mostrami un film che dura meno di [120](runtime) minuti
+    - Voglio vedere un film sotto i [90](runtime) minuti
+    - Dammi un film che dura al massimo [150](runtime) minuti
+    - Cerco un film con durata inferiore a [100](runtime) minuti
+    - Quali film ci sono con durata sotto i [120](runtime) minuti?

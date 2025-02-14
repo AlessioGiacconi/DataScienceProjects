@@ -1,10 +1,14 @@
 from deep_translator import GoogleTranslator
 
 def translate_to_italian(text):
-    """Traduce un testo dall'inglese all'italiano."""
     try:
-        translator = GoogleTranslator(source='en', target='it')
-        return translator.translate(text)
+        if len(text) > 500:
+            chunks = [text[i:i+500] for i in range(0, len(text), 500)]
+            translator = GoogleTranslator(source='en', target='it')
+            translated_chunks = [translator.translate(chunk) for chunk in chunks]
+            return ' '.join(translated_chunks)
+        else:
+            return GoogleTranslator(source='en', target='it').translate(text)
     except Exception as e:
         return f"Errore di traduzione: {e}"
 

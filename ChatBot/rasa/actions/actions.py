@@ -4,32 +4,12 @@
 # See this guide on how to implement these action:
 # https://rasa.com/docs/rasa/custom-actions
 
-
-# This is a simple example for a custom action which utters "Hello World!"
-
-# from typing import Any, Text, Dict, List
-#
-# from rasa_sdk import Action, Tracker
-# from rasa_sdk.executor import CollectingDispatcher
-#
-#
-# class ActionHelloWorld(Action):
-#
-#     def name(self) -> Text:
-#         return "action_hello_world"
-#
-#     def run(self, dispatcher: CollectingDispatcher,
-#             tracker: Tracker,
-#             domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-#
-#         dispatcher.utter_message(text="Hello World!")
-#
-#         return []
 import pandas as pd
 from typing import Any, Text, Dict, List
 from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
 from actions.utils import translate_to_italian, translate_genre, translate_genre_ita_to_eng, translate_language_ita_to_iso
+import re
 
 df = pd.read_csv("./dataset/tmdb_movies.csv").fillna("Dato non disponibile")
 
@@ -53,8 +33,16 @@ class ActionCercaFilm(Action):
             film_info = film.iloc[0]
             overview_it = translate_to_italian(film_info['overview'])
             genres_it = translate_genre(str(film_info['genres']))
+            runtime = film.iloc[0]['runtime']
+            ore = int(runtime // 60)
+            minuti = int(runtime % 60)
 
-            risposta = f"🎬 {film_info['title']} è uscito il {film_info['release_date']}.\nGenere: {genres_it}\nTrama: {overview_it}"
+            risposta = (
+                f"🎬 {film_info['title']} è uscito il {film_info['release_date']}."
+                f"\nGenere: {genres_it}"
+                f"\nDurata: {ore} ore e {minuti} minuti"
+                f"\nTrama: {overview_it}"
+            )
             dispatcher.utter_message(risposta)
         else:
             dispatcher.utter_message("Non ho trovato film corrispondenti 😢")
@@ -119,8 +107,11 @@ class ActionCercaPerLingua(Action):
             film_trovati = df[df["original_language"].str.lower() == lingua_eng.lower()]
 
             if not film_trovati.empty:
-                film_list = film_trovati["title"].tolist()[:5]
-                dispatcher.utter_message(f"Ecco alcuni film in {lingua_ita}:\n" + "\n".join(film_list))
+                film_list = [f"{row['original_title']} (titolo in inglese: {row['title']})" 
+                                if row['title'].lower() != row['original_title'].lower() 
+                                else row['original_title'] for _, row in film_trovati.iterrows()][:5]
+                dispatcher.utter_message(f"Ecco alcuni film in {lingua_ita}:")
+                dispatcher.utter_message("\n".join(film_list))
             else:
                 dispatcher.utter_message(f"Non ho trovato film in {lingua_ita}. 😢")
         else:
@@ -128,3 +119,43 @@ class ActionCercaPerLingua(Action):
 
         return []
 
+class ActionCercaFilmRandom(Action):
+    def name(self):
+        return "action_cerca_film_random"
+
+    def run(self, dispatcher, tracker, domain):
+        if not df.empty:
+            film_random = df.sample(n=1).iloc[0]
+            overview_it = translate_to_italian(film_random['overview'])
+            genres_it = translate_genre(str(film_random['genres']))
+            risposta = (
+                f"🎲 Ecco un film randomico scelto per te!\n"
+                f"🎬 {film_random['title']} è uscito il {film_random['release_date']}.\n"
+                f"Genere: {genres_it}\n"
+                f"Trama: {overview_it}"
+            )
+            dispatcher.utter_message(risposta)
+        else:
+            dispatcher.utter_message("Non ho trovato film disponibili al momento 😢")
+
+        return []
+
+class ActionCercaPerDurata(Action):
+    def name(self):
+        return "action_cerca_per_durata"
+
+    def run(self, dispatcher, tracker, domain):
+        durata_min = tracker.get_slot("runtime")
+
+        if durata_min:
+            film_trovati = df[df['runtime'] <= float(durata_min)]
+
+            if not film_trovati.empty:
+                film_list = [f"{row['title']} ({int(row['runtime']//60)}h {int(row['runtime']%60)}m)" for _, row in film_trovati.iterrows()][:5]
+                dispatcher.utter_message(f"Ecco alcuni film con durata inferiore a {durata_min} minuti:\n" + "\n".join(film_list))
+            else:
+                dispatcher.utter_message(f"Non ho trovato film con durata inferiore a {durata_min} minuti. 😢")
+        else:
+            dispatcher.utter_message("Dimmi una durata massima per cercare film 🎬")
+
+        return []

@@ -12,12 +12,14 @@ intents:
   - cerca_genere
   - cerca_per_valutazione
   - cerca_per_lingua
+  - cerca_film_random
 
 entities:
 - title
 - genres
 - rating
 - language
+- runtime
 
 slots:
   title:
@@ -44,12 +46,20 @@ slots:
     mappings:
       - type: from_entity
         entity: language
+  runtime:
+    type: float
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: runtime
 
 actions:
 - action_cerca_film
 - action_cerca_per_genere
 - action_cerca_per_rating
 - action_cerca_per_lingua
+- action_cerca_film_random
+- action_cerca_per_durata
 
 responses:
   utter_greet:

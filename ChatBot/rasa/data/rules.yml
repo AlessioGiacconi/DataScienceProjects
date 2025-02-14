@@ -30,3 +30,13 @@ rules:
   steps:
   - intent: cerca_per_lingua
   - action: action_cerca_per_lingua
+
+- rule: Cerca film randomico
+  steps:
+  - intent: cerca_film_random
+  - action: action_cerca_film_random
+
+- rule: Cerca film per durata
+  steps:
+  - intent: cerca_per_durata
+  - action: action_cerca_per_durata
