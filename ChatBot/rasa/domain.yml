@@ -15,6 +15,7 @@ intents:
   - cerca_film_random
   - cerca_per_durata
   - cerca_film_recenti
+  - richiedi_overview
 
 entities:
 - title
@@ -30,6 +31,10 @@ slots:
     mappings:
       - type: from_entity
         entity: title
+      - type: from_text
+        conditions:
+          - active_loop: null
+            requested_slot: title
   genres:
     type: text
     influence_conversation: true
@@ -63,6 +68,7 @@ actions:
 - action_cerca_film_random
 - action_cerca_per_durata
 - action_cerca_film_recenti
+- action_mostra_overview
 
 responses:
   utter_greet:

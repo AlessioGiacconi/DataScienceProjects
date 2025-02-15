@@ -63,3 +63,10 @@ stories:
   steps:
   - intent: cerca_film_recenti
   - action: action_cerca_film_recenti
+
+- story: L'utente cerca un film e poi chiede la trama
+  steps:
+  - intent: cerca_film
+  - action: action_cerca_film
+  - intent: richiedi_overview
+  - action: action_mostra_overview

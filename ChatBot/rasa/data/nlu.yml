@@ -116,7 +116,7 @@ nlu:
     - Quale film dovrei guardare?
     - Suggerisci un film qualsiasi
 
-- intent: cerca_per_durata
+- intent: cerca_per_durataMostrami i 
   examples: |
     - Mostrami un film che dura meno di [120](runtime) minuti
     - Voglio vedere un film sotto i [90](runtime) minuti
@@ -132,3 +132,19 @@ nlu:
     - Dammi i film più nuovi
     - Quali sono i film più recenti e popolari?
     - Mostrami i film degli ultimi mesi
+
+- intent: richiedi_overview
+  examples: |
+    - Qual è la trama di [Inception](title)?
+    - Puoi dirmi l'overview di [Titanic](title)?
+    - Vorrei sapere la trama di [Interstellar](title)
+    - Raccontami la storia di [Il Signore degli Anelli](title)
+    - Di cosa parla [Avatar](title)?
+    - Dimmi qualcosa su [Fight Club](title)
+    - Qual è la sinossi di [The Matrix](title)?
+    - Qual è la storia di [Gladiator](title)?
+    - E di cosa parla?
+    - Raccontami la trama
+    - Di cosa parla questo film?
+    - Qual è la sinossi?
+    - Dimmi qualcosa sulla storia

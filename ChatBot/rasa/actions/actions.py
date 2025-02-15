@@ -166,7 +166,8 @@ class ActionCercaFilmRecenti(Action):
 
     def run(self, dispatcher, tracker, domain):
         # Calcola la data di 3 mesi fa
-        data_limite = datetime.now() - timedelta(days=90)
+        data_massima = datetime.strptime("2025-02-12", "%Y-%m-%d") # Calcola la data di 3 mesi fa        
+        data_limite = data_massima - timedelta(days=90)
 
         # Filtra i film usciti negli ultimi 3 mesi e ordina per voto decrescente
         film_recenti = df[(pd.to_datetime(df['release_date'], errors='coerce') >= data_limite)].sort_values(by='vote_average', ascending=False).head(10)
@@ -176,5 +177,40 @@ class ActionCercaFilmRecenti(Action):
             dispatcher.utter_message("🎞️ Ecco i 10 film più recenti e famosi degli ultimi 3 mesi:\n" + "\n".join(film_list))
         else:
             dispatcher.utter_message("Non ho trovato film recenti negli ultimi 3 mesi 😢")
+
+        return []
+    
+
+class ActionMostraOverview(Action):
+    def name(self):
+        return "action_mostra_overview"
+
+    def run(self, dispatcher, tracker, domain):
+        # Otteniamo il titolo memorizzato nello slot
+        titolo_memorizzato = tracker.get_slot("title")
+
+        # Otteniamo eventuali nuove entità dal messaggio dell'utente
+        titolo_messaggio = next(tracker.get_latest_entity_values("title"), None)
+
+        # Se l'utente ha fornito un nuovo titolo, lo usiamo
+        if titolo_messaggio:
+            titolo_film = titolo_messaggio
+        else:
+            # Se l'utente NON ha fornito un nuovo titolo, usiamo l'ultimo titolo memorizzato
+            titolo_film = titolo_memorizzato
+
+        # Se non c'è un titolo valido, chiediamo all'utente di specificarlo
+        if not titolo_film or titolo_film.lower() in ["di cosa parla questo film?", "raccontami la trama"]:
+            dispatcher.utter_message("Non so a quale film ti riferisci. Puoi dirmi il titolo? 🎬")
+            return []
+
+        # Cerchiamo il film nel dataset
+        film = df[df["title"].str.lower() == titolo_film.lower()]
+
+        if not film.empty:
+            overview = film.iloc[0]["overview"]  # Otteniamo la trama
+            dispatcher.utter_message(f"Ecco la trama di **{titolo_film}**: \n\n_{overview}_")
+        else:
+            dispatcher.utter_message(f"Non ho trovato la trama di **{titolo_film}**. Assicurati che il titolo sia corretto! 😢")
 
         return []
