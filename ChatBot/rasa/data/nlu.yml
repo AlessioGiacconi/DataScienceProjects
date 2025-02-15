@@ -78,7 +78,18 @@ nlu:
     - Voglio informazioni su [Titanic](title)
     - Sai qualcosa su [Avatar](title)?
     - [Iron Man](title)
-    - Raccontami la trama di [The Matrix](title)
+    - Parlami di [Interstellar](title)
+    - Cosa sai di [The Dark Knight](title)?
+    - Puoi dirmi qualcosa su [Jurassic Park](title)?
+    - Ti ricordi [Pulp Fiction](title)?
+    - Vorrei sapere di più su [The Godfather](title)
+    - Mi parli un po' di [Fight Club](title)?
+    - Raccontami qualcosa su [The Matrix Reloaded](title)
+    - Puoi darmi dettagli su [The Lion King](title)?
+    - Conosci [Avatar](title)?
+    - Sai dirmi qualcosa su [Iron Man](title)?
+    - Ho bisogno di informazioni su [Star Wars](title)
+    - Riesci a dirmi qualcosa su [Spider-Man](title)?
 
 - intent: cerca_genere
   examples: |
@@ -86,6 +97,20 @@ nlu:
     - Ci sono film [fantascienza](genres)?
     - Voglio un film [drammatico](genres)
     - Mi consigli un film [romantico](genres)?
+    - Vorrei vedere un film [azione](genres)
+    - Dammi qualche titolo di film [thriller](genres)
+    - Mostrami film di genere [avventura](genres)
+    - Hai qualche suggerimento per un film [fantasy](genres)?
+    - Ho voglia di un film [giallo](genres)
+    - Potresti elencarmi alcuni film [storico](genres)?
+    - Puoi consigliarmi un bel film [western](genres)?
+    - Mi dai qualche titolo di film [horror](genres)?
+    - Sai indicarmi alcuni film [animazione](genres)?
+    - Hai qualche suggerimento per un film [fantasy](genres)?
+    - Voglio guardare un film [musical](genres), hai suggerimenti?
+    - Cerco film che rientrano nel genere [commedia](genres)
+    - Sai dirmi un film di genere [fantascienza](genres)?
+
 
 - intent: cerca_per_valutazione
   examples: |
@@ -93,6 +118,13 @@ nlu:
     - Mostrami i film con rating più alto di [9](rating)
     - Dimmi quali film hanno una votazione almeno pari a [6](rating)
     - Quali sono i film che hanno un rating superiore a [5](rating)
+    - Voglio vedere solo film con una valutazione di almeno [7](rating)
+    - Quali film hanno ottenuto un punteggio maggiore di [8.5](rating)?
+    - Mi interessano solo i film con una media voto superiore a [7.5](rating)
+    - Quali film hanno ottenuto una votazione migliore di [6](rating)?
+    - Mostrami i film che hanno un punteggio superiore a [8](rating) su 10
+    - Fammi una lista di film con rating oltre [6](rating)
+    - Mi consigli film con voto maggiore di [8.2](rating)?
 
 - intent: cerca_per_lingua
   examples: |
@@ -103,6 +135,16 @@ nlu:
     - Film disponibili in [spagnolo](language)
     - Voglio vedere un film di lingua [inglese](language)
     - Dimmi dei film in [italiano](language)
+    - Cerco film che siano in lingua [giapponese](language)
+    - Vorrei vedere qualcosa in [arabo](language)
+    - Mi servirebbe un elenco di film in [svedese](language)
+    - Voglio solo film che siano in [polacco](language)
+    - Ho voglia di un film in [catalano](language)
+    - Puoi mostrarmi film disponibili in [greco](language)?
+    - Vorrei vedere dei film in lingua [giapponese](language)
+    - Vorrei vedere un film con audio in [inglese](language)
+    - Quali film posso vedere in [coreano](language)?
+
 
 - intent: cerca_film_random
   examples: |
@@ -115,14 +157,38 @@ nlu:
     - Film random, per favore
     - Quale film dovrei guardare?
     - Suggerisci un film qualsiasi
+    - Proponimi un film a caso
+    - Decidi tu quale film dovrei guardare
+    - Sorprendimi con un film!
+    - Trova un film per me
+    - Voglio guardare qualcosa di inaspettato
+    - Puoi suggerirmi un film casualmente?
+    - Indicami un titolo a caso
+    - Non so cosa guardare, scegli tu!
+    - Mostrami un titolo interessante a caso
+    - Quale film potrebbe piacermi?
+    - Scegli tu un film da guardare
 
-- intent: cerca_per_durataMostrami i 
+- intent: cerca_per_durata
   examples: |
     - Mostrami un film che dura meno di [120](runtime) minuti
     - Voglio vedere un film sotto i [90](runtime) minuti
     - Dammi un film che dura al massimo [150](runtime) minuti
     - Cerco un film con durata inferiore a [100](runtime) minuti
     - Quali film ci sono con durata sotto i [120](runtime) minuti?
+    - Voglio un film che non superi i [110](runtime) minuti
+    - Mi serve un film breve, sotto i [95](runtime) minuti
+    - Hai film che durano meno di [130](runtime) minuti?
+    - Trovami un film che non sia troppo lungo, massimo [105](runtime) minuti
+    - Mostrami film con durata massima di [140](runtime) minuti
+    - Quali sono i film più corti di [100](runtime) minuti?
+    - Voglio guardare qualcosa di breve, sotto i [85](runtime) minuti
+    - Sai suggerirmi un film che non duri più di [125](runtime) minuti?
+    - Cerco un film veloce da guardare, sotto i [75](runtime) minuti
+    - Non voglio un film lungo, massimo [95](runtime) minuti
+    - Dammi un film rapido, inferiore a [80](runtime) minuti
+    - Dimmi un titolo di un film che duri meno di [110](runtime) minuti
+
 
 - intent: cerca_film_recenti
   examples: |
@@ -132,6 +198,16 @@ nlu:
     - Dammi i film più nuovi
     - Quali sono i film più recenti e popolari?
     - Mostrami i film degli ultimi mesi
+    - Quali sono le ultime uscite al cinema?
+    - Mi dici quali sono i film più recenti?
+    - Elencami i film più nuovi disponibili
+    - Voglio guardare un film uscito da poco
+    - Mostrami le nuove uscite
+    - Quali sono i film appena usciti?
+    - Hai un elenco dei film più recenti?
+    - Dimmi dei film usciti da poco
+    - Vorrei vedere un film uscito di recente
+    - Dimmi il titolo di un film uscito da poco
 
 - intent: richiedi_overview
   examples: |
@@ -148,3 +224,14 @@ nlu:
     - Di cosa parla questo film?
     - Qual è la sinossi?
     - Dimmi qualcosa sulla storia
+    - Qual è la trama di [The Dark Knight](title)?
+    - Puoi dirmi la storia di [Forrest Gump](title)?
+    - Qual è il riassunto di questo film?
+    - Puoi raccontarmi cosa succede in questo film?
+    - Sai dirmi di cosa parla?
+    - Sai dirmi la trama di [Django Unchained](title)?
+    - Raccontami brevemente la trama di [Whiplash](title)
+    - Riassumi la storia di questo film
+    - Puoi dirmi di cosa parla?
+
+

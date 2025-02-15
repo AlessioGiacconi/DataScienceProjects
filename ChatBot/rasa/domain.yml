@@ -31,10 +31,9 @@ slots:
     mappings:
       - type: from_entity
         entity: title
-      - type: from_text
         conditions:
           - active_loop: null
-            requested_slot: title
+      - type: custom  # Mantiene il valore attuale se il titolo non è stato specificato
   genres:
     type: text
     influence_conversation: true

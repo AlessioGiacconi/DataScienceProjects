@@ -186,21 +186,21 @@ class ActionMostraOverview(Action):
         return "action_mostra_overview"
 
     def run(self, dispatcher, tracker, domain):
-        # Otteniamo il titolo memorizzato nello slot
-        titolo_memorizzato = tracker.get_slot("title")
+        # Ottieni il titolo dallo slot (ultimo titolo cercato)
+        titolo_slot = tracker.get_slot("title")
 
-        # Otteniamo eventuali nuove entità dal messaggio dell'utente
+        # Controlla se l'utente ha fornito un titolo nel messaggio
         titolo_messaggio = next(tracker.get_latest_entity_values("title"), None)
 
         # Se l'utente ha fornito un nuovo titolo, lo usiamo
         if titolo_messaggio:
             titolo_film = titolo_messaggio
         else:
-            # Se l'utente NON ha fornito un nuovo titolo, usiamo l'ultimo titolo memorizzato
-            titolo_film = titolo_memorizzato
+            # Se l'utente NON ha fornito un nuovo titolo, usiamo l'ultimo memorizzato
+            titolo_film = titolo_slot
 
-        # Se non c'è un titolo valido, chiediamo all'utente di specificarlo
-        if not titolo_film or titolo_film.lower() in ["di cosa parla questo film?", "raccontami la trama"]:
+        # Se il titolo è vuoto o errato, chiediamo di specificarlo
+        if not titolo_film or titolo_film.lower() in ["di cosa parla questo film?", "raccontami la trama", "qual è la sinossi?"]:
             dispatcher.utter_message("Non so a quale film ti riferisci. Puoi dirmi il titolo? 🎬")
             return []
 
@@ -209,7 +209,7 @@ class ActionMostraOverview(Action):
 
         if not film.empty:
             overview = film.iloc[0]["overview"]  # Otteniamo la trama
-            dispatcher.utter_message(f"Ecco la trama di **{titolo_film}**: \n\n_{overview}_")
+            dispatcher.utter_message(f"Ecco la trama di **{titolo_film}**:\n\n_{overview}_")
         else:
             dispatcher.utter_message(f"Non ho trovato la trama di **{titolo_film}**. Assicurati che il titolo sia corretto! 😢")
 

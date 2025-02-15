@@ -66,7 +66,9 @@ stories:
 
 - story: L'utente cerca un film e poi chiede la trama
   steps:
-  - intent: cerca_film
+  - intent: cerca_info_film
   - action: action_cerca_film
+  - slot_was_set:
+    - title: true
   - intent: richiedi_overview
   - action: action_mostra_overview
