@@ -13,6 +13,8 @@ intents:
   - cerca_per_valutazione
   - cerca_per_lingua
   - cerca_film_random
+  - cerca_per_durata
+  - cerca_film_recenti
 
 entities:
 - title
@@ -60,6 +62,7 @@ actions:
 - action_cerca_per_lingua
 - action_cerca_film_random
 - action_cerca_per_durata
+- action_cerca_film_recenti
 
 responses:
   utter_greet:

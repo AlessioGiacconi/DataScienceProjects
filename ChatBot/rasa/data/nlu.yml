@@ -123,3 +123,12 @@ nlu:
     - Dammi un film che dura al massimo [150](runtime) minuti
     - Cerco un film con durata inferiore a [100](runtime) minuti
     - Quali film ci sono con durata sotto i [120](runtime) minuti?
+
+- intent: cerca_film_recenti
+  examples: |
+    - Mostrami i film più recenti
+    - Voglio vedere i film usciti di recente
+    - Quali sono i film usciti negli ultimi mesi?
+    - Dammi i film più nuovi
+    - Quali sono i film più recenti e popolari?
+    - Mostrami i film degli ultimi mesi

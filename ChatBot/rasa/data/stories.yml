@@ -58,3 +58,8 @@ stories:
   steps:
   - intent: cerca_per_durata
   - action: action_cerca_per_durata
+
+- story: Cerca film recenti
+  steps:
+  - intent: cerca_film_recenti
+  - action: action_cerca_film_recenti

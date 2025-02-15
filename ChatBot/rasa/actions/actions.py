@@ -5,11 +5,11 @@
 # https://rasa.com/docs/rasa/custom-actions
 
 import pandas as pd
+from datetime import datetime, timedelta
 from typing import Any, Text, Dict, List
 from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
 from actions.utils import translate_to_italian, translate_genre, translate_genre_ita_to_eng, translate_language_ita_to_iso
-import re
 
 df = pd.read_csv("./dataset/tmdb_movies.csv").fillna("Dato non disponibile")
 
@@ -157,5 +157,24 @@ class ActionCercaPerDurata(Action):
                 dispatcher.utter_message(f"Non ho trovato film con durata inferiore a {durata_min} minuti. 😢")
         else:
             dispatcher.utter_message("Dimmi una durata massima per cercare film 🎬")
+
+        return []
+
+class ActionCercaFilmRecenti(Action):
+    def name(self):
+        return "action_cerca_film_recenti"
+
+    def run(self, dispatcher, tracker, domain):
+        # Calcola la data di 3 mesi fa
+        data_limite = datetime.now() - timedelta(days=90)
+
+        # Filtra i film usciti negli ultimi 3 mesi e ordina per voto decrescente
+        film_recenti = df[(pd.to_datetime(df['release_date'], errors='coerce') >= data_limite)].sort_values(by='vote_average', ascending=False).head(10)
+
+        if not film_recenti.empty:
+            film_list = [f"{row['title']} (⭐ {row['vote_average']}, uscita: {row['release_date']})" for _, row in film_recenti.iterrows()]
+            dispatcher.utter_message("🎞️ Ecco i 10 film più recenti e famosi degli ultimi 3 mesi:\n" + "\n".join(film_list))
+        else:
+            dispatcher.utter_message("Non ho trovato film recenti negli ultimi 3 mesi 😢")
 
         return []
