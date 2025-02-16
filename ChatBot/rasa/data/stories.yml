@@ -59,7 +59,7 @@ stories:
   - intent: cerca_per_durata
   - action: action_cerca_per_durata
 
-- story: Cerca film recenti
+- story: Utente cerca film recenti
   steps:
   - intent: cerca_film_recenti
   - action: action_cerca_film_recenti
@@ -72,3 +72,13 @@ stories:
     - title: true
   - intent: richiedi_overview
   - action: action_mostra_overview
+
+- story: Utente cerca film combinato
+  steps:
+  - intent: cerca_film_combinato
+  - action: action_cerca_film_combinato
+
+- story: Utente cerca film combinato
+  steps:
+  - intent: cerca_film_simile
+  - action: action_cerca_film_simile

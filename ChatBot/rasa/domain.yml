@@ -16,6 +16,8 @@ intents:
   - cerca_per_durata
   - cerca_film_recenti
   - richiedi_overview
+  - cerca_film_combinato
+  - cerca_film_simile
 
 entities:
 - title
@@ -23,6 +25,8 @@ entities:
 - rating
 - language
 - runtime
+- vote_average
+- release_date
 
 slots:
   title:
@@ -58,6 +62,19 @@ slots:
     mappings:
       - type: from_entity
         entity: runtime
+  vote_average:
+    type: float
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: vote_average
+  release_date:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: release_date
+  
 
 actions:
 - action_cerca_film
@@ -68,6 +85,8 @@ actions:
 - action_cerca_per_durata
 - action_cerca_film_recenti
 - action_mostra_overview
+- action_cerca_film_combinato
+- action_cerca_film_simile
 
 responses:
   utter_greet:
