@@ -56,12 +56,12 @@ language_translation = {
 def translate_language_ita_to_iso(language):
     return language_translation.get(language.lower().strip(), language)
 
-def translate_genre(genre_list):
-    genres = genre_list.split(',')
-    return ', '.join([genre_translation.get(g.strip(), g.strip()) for g in genres])
-
 #Creiamo la mappatura inversa (IT → EN)
 reverse_genre_translation = {v: k for k, v in genre_translation.items()}
+
+def translate_genre(genre_list):
+    genres = genre_list.split(',')
+    return ', '.join([reverse_genre_translation.get(g.strip(), g.strip()) for g in genres])
 
 #Funzione per tradurre un genere dall'italiano all'inglese
 def translate_genre_ita_to_eng(genre):

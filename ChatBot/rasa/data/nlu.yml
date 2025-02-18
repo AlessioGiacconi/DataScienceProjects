@@ -236,7 +236,6 @@ nlu:
 
 - intent: cerca_film_combinato
   examples: |
-    # 🎞️ Genere + 🕒 Durata
     - Mostrami un film di genere [azione](genres) sotto i [120](runtime) minuti
     - Cerco un film [commedia](genres) con durata massima di [90](runtime) minuti
     - Vorrei vedere un film [horror](genres) che duri meno di [100](runtime) minuti
@@ -246,7 +245,6 @@ nlu:
     - Ho voglia di un film [musicale](genres) con durata inferiore a [85](runtime) minuti
     - Dammi un film [thriller](genres) più corto di [140](runtime) minuti
 
-    # 🎞️ Genere + 🌐 Lingua
     - Mostrami un film [azione](genres) in [italiano](language)
     - Voglio vedere un film di genere [commedia](genres) in [francese](language)
     - Hai un film [fantascienza](genres) in lingua [inglese](language)?
@@ -255,7 +253,6 @@ nlu:
     - Dammi un film [horror](genres) parlato in [portoghese](language)
     - Voglio un film [romantico](genres) che parli in [giapponese](language)
 
-    # 🎞️ Genere + ⭐ Voto Minimo
     - Trova un film [azione](genres) con voto superiore a [7](vote_average)
     - Cerco un film di genere [romantico](genres) con almeno [6](vote_average) di voto
     - Puoi mostrarmi un film [thriller](genres) che abbia almeno [5](vote_average)?
@@ -264,7 +261,6 @@ nlu:
     - Mi consigli un film [storico](genres) con una valutazione sopra [6](vote_average)?
     - Dammi un film [horror](genres) con rating minimo di [5](vote_average)
 
-    # 🎞️ Genere + 🗓️ Data di Rilascio
     - Cerco un film [thriller](genres) uscito dopo il [2024-01-01](release_date)
     - Trova un film [animazione](genres) uscito dopo il [2023-06-15](release_date)
     - Voglio un film [avventura](genres) uscito dopo il [2022-12-01](release_date)
@@ -272,32 +268,27 @@ nlu:
     - Dammi un film [storico](genres) pubblicato successivamente al [2023-03-01](release_date)
     - Mostrami i film [musicali](genres) usciti dopo il [2022-07-10](release_date)
 
-    # 🎞️ Genere + 🕒 Durata + 🌐 Lingua
     - Cerco un film [fantasy](genres) sotto i [120](runtime) minuti in lingua [inglese](language)
     - Voglio un film [azione](genres) sotto i [100](runtime) minuti parlato in [italiano](language)
     - Mi trovi un film [horror](genres) di massimo [130](runtime) minuti in [spagnolo](language)?
     - Mostrami un film [western](genres) sotto i [90](runtime) minuti doppiato in [francese](language)
     - Quale film [drammatico](genres) di meno di [140](runtime) minuti posso vedere in [tedesco](language)?
 
-    # 🎞️ Genere + 🕒 Durata + ⭐ Voto Minimo
     - Voglio un film [azione](genres) di massimo [120](runtime) minuti con voto minimo [6](vote_average)
     - Cerco un film [horror](genres) sotto i [100](runtime) minuti con almeno [7](vote_average) di punteggio
     - Mostrami un film [fantasy](genres) di meno di [150](runtime) minuti con voto maggiore di [5](vote_average)
     - Ho voglia di un film [thriller](genres) sotto i [90](runtime) minuti con punteggio minimo [4](vote_average)
 
-    # 🎞️ Genere + 🌐 Lingua + 🗓️ Data di Rilascio
     - Mostrami un film [azione](genres) in [italiano](language) uscito dopo il [2023-01-01](release_date)
     - Cerco un film [commedia](genres) in [spagnolo](language) rilasciato dopo il [2022-05-01](release_date)
     - Hai un film [horror](genres) in [francese](language) uscito successivamente al [2024-06-30](release_date)?
     - Quali film [fantascienza](genres) in [tedesco](language) sono stati rilasciati dopo il [2021-08-15](release_date)?
 
-    # 🎞️ Genere + 🕒 Durata + 🌐 Lingua + ⭐ Voto Minimo
     - Cerco un film [fantasy](genres) sotto i [120](runtime) minuti in [inglese](language) con voto minimo [5](vote_average)
     - Vorrei un film [azione](genres) che non superi i [100](runtime) minuti, parlato in [italiano](language) e con almeno [6](vote_average)
     - Puoi consigliarmi un film [horror](genres) di meno di [140](runtime) minuti, in [francese](language) e con un rating di almeno [4](vote_average)?
     - Dammi un film [western](genres) sotto i [110](runtime) minuti in [tedesco](language) con voto superiore a [3](vote_average)
 
-    # 🎯 Tutti i parametri insieme
     - Voglio un film [azione](genres) sotto i [120](runtime) minuti, in [italiano](language), uscito dopo il [2024-01-01](release_date) e con voto minimo [6](vote_average)
     - Mostrami un film [horror](genres) con durata inferiore a [100](runtime) minuti, parlato in [inglese](language), rilasciato dopo il [2023-05-10](release_date) e con almeno [7](vote_average)
     - Cerco un film [fantasy](genres) sotto i [150](runtime) minuti, in [giapponese](language), uscito dopo il [2022-09-15](release_date) e con voto minimo [5](vote_average)

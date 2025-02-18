@@ -147,7 +147,7 @@ class ActionCercaFilmRandom(Action):
         if not df.empty:
             film_random = df.sample(n=1).iloc[0]
             overview_it = translate_to_italian(film_random['overview'])
-            genres_it = translate_genre_ita_to_eng(str(film_random['genres']))
+            genres_it = translate_genre(str(film_random['genres']))
             risposta = (
                 f"🎲 Ecco un film randomico scelto per te!\n"
                 f"🎬 {film_random['title']} è uscito il {film_random['release_date']}.\n"
@@ -289,7 +289,7 @@ class ActionCercaFilmCombinato(Action):
                     f"\n🎞️ {row['title']}\n"
                     f"⭐ Voto medio: {row['vote_average']}/10\n"
                     f"🕒 Durata: {int(row['runtime']//60)}h {int(row['runtime']%60)}m\n"
-                    f"🗓️ Rilasciato il: {row['release_date'].strftime('%Y-%m-%d')}\n"
+                    f"🗓️ Rilasciato il: {row['release_date']}\n"
                     f"📝 Trama: {overview_it}\n"
                     f"---------------------------------\n"
                 )
@@ -316,54 +316,41 @@ class ActionCercaFilmSimile(Action):
             dispatcher.utter_message(f"Non ho trovato il film '{titolo}'. Assicurati che il titolo sia corretto! 😢")
             return []
 
-        # Estraiamo le informazioni del film di riferimento
+        # Estraiamo informazioni del film di riferimento
         film_info = film_base.iloc[0]
         keywords_base = set(str(film_info['keywords']).lower().split(', ')) if pd.notna(film_info['keywords']) else set()
         generi_base = set(str(film_info['genres']).lower().split(', ')) if pd.notna(film_info['genres']) else set()
 
-        # Filtriamo i film simili
-        film_simili = df.copy()
-        film_simili['match_score'] = 0
+        # Calcolo vettorializzato del punteggio di somiglianza
+        def calcola_punteggio(row):
+            kw = set(str(row['keywords']).lower().split(', ')) if pd.notna(row['keywords']) else set()
+            gn = set(str(row['genres']).lower().split(', ')) if pd.notna(row['genres']) else set()
+            return 2 * len(generi_base.intersection(gn)) + len(keywords_base.intersection(kw))
 
-        # Calcoliamo il punteggio di somiglianza basato su keywords e generi
-        for idx, row in film_simili.iterrows():
-            keywords_correnti = set(str(row['keywords']).lower().split(', ')) if pd.notna(row['keywords']) else set()
-            generi_correnti = set(str(row['genres']).lower().split(', ')) if pd.notna(row['genres']) else set()
+        # Calcoliamo i punteggi di somiglianza in modo vettorializzato
+        df['match_score'] = df.apply(calcola_punteggio, axis=1)
 
-            # Calcolo del punteggio in base alla sovrapposizione di keywords e generi
-            keyword_score = len(keywords_base.intersection(keywords_correnti))
-            genre_score = len(generi_base.intersection(generi_correnti))
+        # Filtriamo i film simili (escludendo quello cercato) e otteniamo i primi 5
+        film_simili = df[df['title'].str.lower() != titolo.lower()].nlargest(5, ['match_score', 'vote_average'])
 
-            # Punteggio combinato (peso maggiore ai generi)
-            film_simili.at[idx, 'match_score'] = (2 * genre_score) + keyword_score
-
-        # Rimuoviamo il film richiesto e ordiniamo per somiglianza e voto
-        film_simili = film_simili[film_simili["title"].str.lower() != titolo.lower()]
-        film_simili = film_simili.sort_values(by=["match_score", "vote_average"], ascending=[False, False])
-
-        # Mostriamo i primi 5 film simili
-        film_raccomandati = film_simili.head(5)
-
-        if film_raccomandati.empty:
+        if film_simili.empty:
             dispatcher.utter_message("Non sono riuscito a trovare film simili. Prova con un altro titolo! 🎬")
             return []
 
         # Creiamo il messaggio di risposta
-        messaggio = f"🎬 Ecco alcuni film simili a '{titolo}':\n"
-        for _, row in film_raccomandati.iterrows():
+        messaggi = [f"🎬 Ecco alcuni film simili a '{titolo}':\n"]
+        for _, row in film_simili.iterrows():
             genres_it = translate_genre(str(row["genres"]))
             overview_it = translate_to_italian(row["overview"]) if row["overview"] else "Trama non disponibile"
             data_rilascio = pd.to_datetime(row["release_date"], errors='coerce').strftime('%Y-%m-%d') if pd.notna(row["release_date"]) else "Data non disponibile"
 
-            film_info = [
-                f"🎞️ {row['title']} ({data_rilascio})",
-                f"⭐ Voto medio: {row['vote_average']}/10",
-                f"🎞️ Genere: {genres_it}",
-                f"📖 Trama: {overview_it}",
-                f"---------------------------------"
-            ]
+            messaggi.append(
+                f"🎞️ {row['title']} ({data_rilascio})\n"
+                f"⭐ Voto medio: {row['vote_average']}/10\n"
+                f"🎞️ Genere: {genres_it}\n"
+                f"📖 Trama: {overview_it}\n"
+                f"---------------------------------\n"
+            )
 
-            messaggio += "\n".join(film_info) + "\n"
-
-        dispatcher.utter_message(messaggio)
+        dispatcher.utter_message("\n".join(messaggi))
         return []
