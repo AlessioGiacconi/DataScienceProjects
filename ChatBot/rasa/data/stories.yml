@@ -73,12 +73,12 @@ stories:
   - intent: richiedi_overview
   - action: action_mostra_overview
 
-- story: Utente cerca film combinato
-  steps:
-  - intent: cerca_film_combinato
-  - action: action_cerca_film_combinato
+#- story: Utente cerca film combinato
+ # steps:
+ # - intent: cerca_film_combinato
+ # - action: action_cerca_film_combinato
 
-- story: Utente cerca film combinato
+- story: Utente cerca film simile
   steps:
   - intent: cerca_film_simile
   - action: action_cerca_film_simile

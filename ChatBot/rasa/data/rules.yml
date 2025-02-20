@@ -46,12 +46,26 @@ rules:
   - intent: cerca_film_recenti
   - action: action_cerca_film_recenti
 
-- rule: Cerca film combinato
-  steps:
-  - intent: cerca_film_combinato
-  - action: action_cerca_film_combinato
+#- rule: Cerca film combinato
+ # steps:
+  #- intent: cerca_film_combinato
+  #- action: action_cerca_film_combinato
 
 - rule: Cerca film simile
   steps:
   - intent: cerca_film_simile
   - action: action_cerca_film_simile
+
+- rule: attiva cerca film combinato
+  steps:
+  - intent: cerca_film_combinato
+  - action: movie_search_form
+  - active_loop: movie_search_form
+
+- rule: Completamento della form cerca film combinato
+  condition:
+    - active_loop: movie_search_form
+  steps:
+    - action: movie_search_form
+    - active_loop: null
+    - action: action_submit_film_combinato

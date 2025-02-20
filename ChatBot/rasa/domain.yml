@@ -25,8 +25,12 @@ entities:
 - rating
 - language
 - runtime
-- vote_average
 - release_date
+- genres_form
+- language_form
+- rating_form
+- runtime_form
+- release_date_form
 
 slots:
   title:
@@ -44,36 +48,85 @@ slots:
     mappings:
       - type: from_entity
         entity: genres
+  genres_form:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: genres_form
+        conditions:
+        - active_loop: movie_search_form
+          requested_slot: genres_form 
   rating:
     type: float
     influence_conversation: true
     mappings:
       - type: from_entity
         entity: rating
+  rating_form:
+    type: float
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: rating_form
+        conditions:
+        - active_loop: movie_search_form
+          requested_slot: rating_form 
   language:
     type: text
     influence_conversation: true
     mappings:
       - type: from_entity
         entity: language
+  language_form:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: language_form
+        conditions:
+        - active_loop: movie_search_form
+          requested_slot: language_form
   runtime:
     type: float
     influence_conversation: true
     mappings:
       - type: from_entity
         entity: runtime
-  vote_average:
+  runtime_form:
     type: float
     influence_conversation: true
     mappings:
       - type: from_entity
-        entity: vote_average
+        entity: runtime_form
+        conditions:
+        - active_loop: movie_search_form
+          requested_slot: runtime_form
   release_date:
     type: text
     influence_conversation: true
     mappings:
       - type: from_entity
         entity: release_date
+  release_date_form:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: release_date_form
+        conditions:
+        - active_loop: movie_search_form
+          requested_slot: release_date_form
+
+
+forms:
+  movie_search_form:
+    required_slots:
+      - genres_form
+      - runtime_form
+      - language_form
+      - rating_form
+      - release_date_form
   
 
 actions:
@@ -85,8 +138,9 @@ actions:
 - action_cerca_per_durata
 - action_cerca_film_recenti
 - action_mostra_overview
-- action_cerca_film_combinato
+- action_submit_film_combinato
 - action_cerca_film_simile
+- validate_film_combinato_form
 
 responses:
   utter_greet:
@@ -107,6 +161,17 @@ responses:
 
   utter_iamabot:
   - text: "Sono un bot, alimentato da Rasa."
+
+  utter_ask_genres_form:
+    - text: "Ok, che genere preferisci? (es. horror, commedia, drammatico...)"
+  utter_ask_runtime_form:
+    - text: "Hai preferenze sulla durata del film? (Indica minuti o scrivi 'No' per saltare)"
+  utter_ask_language_form:
+    - text: "In che lingua vuoi vederlo? (Es. italiano, inglese, francese...)"
+  utter_ask_vote_average_form:
+    - text: "Hai preferenze sul voto minimo del film? (Da 0 a 10, o scrivi 'No')"
+  utter_ask_release_date_form:
+    - text: "Vuoi un film uscito dopo una certa data? (Formato: YYYY-MM-DD, o scrivi 'No')"
 
 session_config:
   session_expiration_time: 60

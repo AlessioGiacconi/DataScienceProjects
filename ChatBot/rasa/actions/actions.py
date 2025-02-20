@@ -5,11 +5,14 @@
 # https://rasa.com/docs/rasa/custom-actions
 
 import pandas as pd
+import re
 from datetime import datetime, timedelta
 from typing import Any, Text, Dict, List
 from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
 from actions.utils import translate_to_italian, translate_genre, translate_genre_ita_to_eng, translate_language_ita_to_iso
+from rasa_sdk.forms import FormValidationAction
+from rasa_sdk.events import SlotSet
 
 df = pd.read_csv("./dataset/tmdb_movies.csv").fillna("Dato non disponibile")
 
@@ -236,7 +239,7 @@ class ActionMostraOverview(Action):
 
         return []
 
-class ActionCercaFilmCombinato(Action):
+'''class ActionCercaFilmCombinato(Action):
     def name(self):
         return "action_cerca_film_combinato"
 
@@ -245,7 +248,7 @@ class ActionCercaFilmCombinato(Action):
         genere = tracker.get_slot("genres")
         durata_max = tracker.get_slot("runtime")
         lingua = tracker.get_slot("language")
-        voto_min = tracker.get_slot("vote_average")
+        voto_min = tracker.get_slot("rating")
         data_min = tracker.get_slot("release_date")
 
         # Applica i filtri in base ai parametri forniti
@@ -297,8 +300,9 @@ class ActionCercaFilmCombinato(Action):
         else:
             dispatcher.utter_message("Non ho trovato film che corrispondano ai criteri richiesti 😢")
 
-        return []
+        return []'''
 
+    
 class ActionCercaFilmSimile(Action):
     def name(self):
         return "action_cerca_film_simile"
@@ -354,3 +358,89 @@ class ActionCercaFilmSimile(Action):
 
         dispatcher.utter_message("\n".join(messaggi))
         return []
+
+class ActionSubmitFilmCombinato(Action):
+    def name(self):
+        return "action_submit_film_combinato"
+
+    def run(self, dispatcher, tracker, domain):
+        genere = tracker.get_slot("genres")
+        durata_max = tracker.get_slot("runtime")
+        lingua = tracker.get_slot("language")
+        voto_min = tracker.get_slot("vote_average")
+        data_min = tracker.get_slot("release_date")
+
+        film_filtrati = df
+
+        if genere and genere != "Nessuna preferenza":
+            genere_eng = translate_genre_ita_to_eng(genere)
+            film_filtrati = film_filtrati[film_filtrati["genres"].str.contains(genere_eng, case=False, na=False)]
+        
+        if durata_max:
+            film_filtrati = film_filtrati[film_filtrati["runtime"] <= float(durata_max)]
+
+        if lingua and lingua != "Qualsiasi lingua":
+            lingua_eng = translate_language_ita_to_iso(lingua)
+            film_filtrati = film_filtrati[film_filtrati["original_language"] == lingua_eng]
+
+        if voto_min:
+            film_filtrati = film_filtrati[film_filtrati["vote_average"] >= float(voto_min)]
+
+        if data_min:
+            try:
+                data_min = datetime.strptime(data_min, "%Y-%m-%d")
+                film_filtrati["release_date"] = pd.to_datetime(film_filtrati["release_date"], errors="coerce")
+                film_filtrati = film_filtrati[film_filtrati["release_date"] >= data_min]
+            except Exception as e:
+                dispatcher.utter_message(f"Errore nella gestione della data: {e}")
+                return []
+
+        if not film_filtrati.empty:
+            film_list = film_filtrati.sort_values(by="vote_average", ascending=False).head(5)
+            messaggio = "🎬 Ecco i film che corrispondono ai criteri richiesti:\n"
+            for _, row in film_list.iterrows():
+                overview_it = translate_to_italian(row["overview"])
+                messaggio += (
+                    f"\n🎞️ {row['title']}\n"
+                    f"⭐ Voto medio: {row['vote_average']}/10\n"
+                    f"🕒 Durata: {int(row['runtime']//60)}h {int(row['runtime']%60)}m\n"
+                    f"🗓️ Rilasciato il: {row['release_date']}\n"
+                    f"📝 Trama: {overview_it}\n"
+                    f"---------------------------------\n"
+                )
+            dispatcher.utter_message(messaggio)
+        else:
+            dispatcher.utter_message("Non ho trovato film che corrispondano ai criteri richiesti 😢")
+
+        return []
+
+class ValidateFilmCombinatoForm(FormValidationAction):
+    def name(self) -> str:
+        return "validate_film_combinato_form"
+
+    def validate_runtime(self, slot_value, dispatcher, tracker, domain):
+        """Se l'utente dice 'No', lasciamo il valore a None"""
+        if slot_value is None or str(slot_value).lower() == "no":
+            return {"runtime": None}
+        if isinstance(slot_value, (int, float)) and slot_value > 0:
+            return {"runtime": slot_value}
+        dispatcher.utter_message("La durata deve essere un numero positivo. Riprova.")
+        return {"runtime": None}
+
+    def validate_vote_average(self, slot_value, dispatcher, tracker, domain):
+        """Se l'utente dice 'No', lasciamo il valore a None"""
+        if slot_value is None or str(slot_value).lower() == "no":
+            return {"vote_average": None}
+        if 0 <= float(slot_value) <= 10:
+            return {"vote_average": float(slot_value)}
+        dispatcher.utter_message("Il voto deve essere tra 0 e 10. Riprova.")
+        return {"vote_average": None}
+
+    def validate_release_date(self, slot_value, dispatcher, tracker, domain):
+        """Se l'utente dice 'No', lasciamo il valore a None"""
+        if slot_value is None or str(slot_value).lower() == "no":
+            return {"release_date": None}
+        if re.match(r"\d{4}-\d{2}-\d{2}", slot_value):
+            return {"release_date": slot_value}
+        dispatcher.utter_message("La data deve essere nel formato YYYY-MM-DD. Riprova.")
+        return {"release_date": None}
