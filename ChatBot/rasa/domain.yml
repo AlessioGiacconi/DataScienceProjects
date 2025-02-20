@@ -144,7 +144,19 @@ actions:
 
 responses:
   utter_greet:
-  - text: "Ciao! Come posso aiutarti a trovare un film oggi? 🎬"
+    - text: |
+        🎬 Ciao e benvenuto su CineGuru AI! 🍿  
+        Sono il tuo assistente cinematografico personale e posso aiutarti a:
+
+        - 🔍 Cercare informazioni dettagliate su qualsiasi film  
+        - 🎞️ Trovare film in base al genere, alla lingua, alla durata o al voto medio  
+        - 📅 Mostrare i film più recenti usciti negli ultimi mesi  
+        - 🎲 Suggerirti un film randomico se non sai cosa guardare  
+        - 🤝 Consigliarti film simili a uno che hai già apprezzato  
+        - 🎛️ Trovare film combinando più parametri come lingua, genere, voto, durata e data di uscita  
+        - 📖 Mostrare la trama di un film specifico  
+
+        🎯 Che film vuoi scoprire oggi?  
 
   utter_cheer_up:
   - text: "Ecco qualcosa per tirarti su di morale!"

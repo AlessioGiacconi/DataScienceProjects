@@ -40,6 +40,10 @@ class ActionCercaFilm(Action):
             ore = int(runtime // 60)
             minuti = int(runtime % 60)
 
+            # Creazione del link dell'immagine
+            poster_path = film_info['poster_path']
+            image_url = f"https://image.tmdb.org/t/p/w500{poster_path}" if pd.notna(poster_path) else None
+
             # Estrazione e formattazione informazioni aggiuntive
             status = translate_to_italian(film_info['status'])
             revenue = f"{film_info['revenue']:,}".replace(',', '.') + " USD"
@@ -48,7 +52,6 @@ class ActionCercaFilm(Action):
             companies = translate_to_italian(film_info['production_companies'])
             countries = translate_to_italian(film_info['production_countries'])
             spoken_languages = translate_to_italian(film_info['spoken_languages'])
-            keywords = translate_to_italian(film_info['keywords'])
             vote_avg = film_info['vote_average']
 
             risposta = (
@@ -63,10 +66,14 @@ class ActionCercaFilm(Action):
                 f"\n 🏢 Case di produzione: {companies}",
                 f"\n 🌎 Paesi di produzione: {countries}",
                 f"\n 🗣️ Lingue parlate: {spoken_languages}",
-                f"\n 🔑 Parole chiave: {keywords}",
                 f"\n 📖 Trama: {overview_it}"
             )
             dispatcher.utter_message(" ".join(risposta))
+
+            # Invia l'immagine se disponibile
+            if image_url:
+                dispatcher.utter_message(image=image_url)
+                
         else:
             dispatcher.utter_message("Non ho trovato film corrispondenti 😢")
 
