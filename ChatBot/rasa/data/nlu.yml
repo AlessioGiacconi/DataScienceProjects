@@ -195,6 +195,13 @@ nlu:
     - Non voglio un film lungo, massimo [95](runtime) minuti
     - Dammi un film rapido, inferiore a [80](runtime) minuti
     - Dimmi un titolo di un film che duri meno di [110](runtime) minuti
+    - [110](runtime) minuti
+    - [150](runtime) minuti
+    - [120](runtime) minuti
+    - [90]](runtime) minuti
+    - [100](runtime) minuti
+    - [80](runtime) minuti
+    
 
 
 - intent: cerca_film_recenti

@@ -25,7 +25,6 @@ entities:
 - vote_average
 - language
 - runtime
-- release_date
 #- genres_form
 #- language_form
 #- rating_form
@@ -78,15 +77,6 @@ slots:
         conditions:
         - active_loop: movie_search_form
           requested_slot: runtime
-  release_date:
-    type: text
-    influence_conversation: true
-    mappings:
-      - type: from_entity
-        entity: release_date
-        conditions:
-        - active_loop: movie_search_form
-          requested_slot: release_date
 
 
 forms:
@@ -96,7 +86,6 @@ forms:
       - runtime
       - language
       - vote_average
-      - release_date
   
 
 actions:
@@ -110,7 +99,7 @@ actions:
 - action_mostra_overview
 - action_submit_film_combinato
 - action_cerca_film_simile
-- validate_film_combinato_form
+- validate_movie_search_form
 
 responses:
   utter_greet:
@@ -152,8 +141,6 @@ responses:
     - text: "In che lingua vuoi vederlo? (Es. italiano, inglese, francese...)"
   utter_ask_vote_average:
     - text: "Hai preferenze sul voto minimo del film? (Da 0 a 10, o scrivi 'No')"
-  utter_ask_release_date:
-    - text: "Vuoi un film uscito dopo una certa data? (Formato: YYYY-MM-DD, o scrivi 'No')"
 
 session_config:
   session_expiration_time: 60

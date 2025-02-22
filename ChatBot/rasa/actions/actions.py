@@ -12,7 +12,7 @@ from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
 from actions.utils import translate_to_italian, translate_genre, translate_genre_ita_to_eng, translate_language_ita_to_iso
 from rasa_sdk.forms import FormValidationAction
-from rasa_sdk.events import SlotSet
+from rasa_sdk.events import SlotSet, AllSlotsReset
 
 df = pd.read_csv("./dataset/tmdb_movies.csv").fillna("Dato non disponibile")
 
@@ -178,7 +178,11 @@ class ActionCercaPerDurata(Action):
         durata_min = tracker.get_slot("runtime")
 
         if durata_min:
-            film_trovati = df[df['runtime'] <= float(durata_min)]
+            # Pulizia dei dati: rimuove NaN e converte in float
+            df['runtime'] = pd.to_numeric(df['runtime'], errors='coerce').fillna(9999)
+
+            # Filtra i film con durata tra 60 minuti e il valore massimo richiesto
+            film_trovati = df[(df['runtime'] >= 50) & (df['runtime'] <= float(durata_min))]
 
             if not film_trovati.empty:
                 film_list = [f"{row['title']} ({int(row['runtime']//60)}h {int(row['runtime']%60)}m)" for _, row in film_trovati.iterrows()][:5]
@@ -384,7 +388,7 @@ class ActionSubmitFilmCombinato(Action):
             film_filtrati = film_filtrati[film_filtrati["genres"].str.contains(genere_eng, case=False, na=False)]
         
         if durata_max:
-            film_filtrati = film_filtrati[film_filtrati["runtime"] <= float(durata_max)]
+            film_filtrati = film_filtrati[(film_filtrati["runtime"] >= 50) & (film_filtrati["runtime"] <= float(durata_max))]
 
         if lingua and lingua != "Qualsiasi lingua":
             lingua_eng = translate_language_ita_to_iso(lingua)
@@ -419,50 +423,60 @@ class ActionSubmitFilmCombinato(Action):
         else:
             dispatcher.utter_message("Non ho trovato film che corrispondano ai criteri richiesti 😢")
 
-        return []
+        # 🔥 Resetta gli slot alla fine della ricerca
+        return [
+            SlotSet("genres", None),
+            SlotSet("runtime", None),
+            SlotSet("language", None),
+            SlotSet("vote_average", None),
+            SlotSet("release_date", None)
+        ]
 
 class ValidateFilmCombinatoForm(FormValidationAction):
     def name(self) -> str:
-        return "validate_film_combinato_form"
-    
-    def validate_genres_form(self, slot_value, dispatcher, tracker, domain):
-        """Se la form è attiva, memorizza il valore del genere senza lanciare subito la ricerca"""
-        if tracker.active_loop.get("name") == "movie_search_form":
-            return {"genres_form": slot_value}
-        return {}
+        return "validate_movie_search_form"
+
+    def validate_genres(self, slot_value, dispatcher, tracker, domain):
+        """Valida il genere del film. Se l'utente dice 'no', lo slot viene ignorato."""
+        if slot_value and slot_value.lower() in ["no", "nessuna preferenza", "non importa"]:
+            dispatcher.utter_message("Va bene, non considererò il genere! 🎭")
+            return {"genres": None}
+        return {"genres": slot_value}
 
     def validate_runtime(self, slot_value, dispatcher, tracker, domain):
-        """Se l'utente dice 'No', lasciamo il valore a None"""
-        if slot_value is None or str(slot_value).lower() == "no":
+        """Valida la durata del film. Se l'utente dice 'no', lo slot viene ignorato."""
+        if not slot_value or str(slot_value).lower() in ["no", "nessuna preferenza", "non importa"]:
+            dispatcher.utter_message("Va bene, ignorerò la durata! ⏳")
             return {"runtime": None}
-        if isinstance(slot_value, (int, float)) and slot_value > 0:
-            return {"runtime": slot_value}
-        dispatcher.utter_message("La durata deve essere un numero positivo. Riprova.")
-        return {"runtime": None}
-
-    def validate_rating(
-        self, slot_value: Any, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
-    ) -> Dict[Text, Any]:
-        if slot_value is None:
-            dispatcher.utter_message(text="Non ho capito, inserisci un numero tra 0 e 10 per la valutazione.")
-            return {"vote_average": None}
-
         try:
-            rating = float(slot_value)
-            if 0 <= rating <= 10:
-                return {"vote_average": rating}
+            runtime_value = int(slot_value)
+            if runtime_value < 60:
+                dispatcher.utter_message("Preferisci un film più lungo di 60 minuti? 🎬")
+            return {"runtime": runtime_value}
+        except ValueError:
+            dispatcher.utter_message("Per favore, inserisci un numero valido per la durata.")
+            return {"runtime": None}
+
+    def validate_language(self, slot_value, dispatcher, tracker, domain):
+        """Valida la lingua del film. Se l'utente dice 'no', lo slot viene ignorato."""
+        if slot_value and slot_value.lower() in ["no", "nessuna preferenza", "qualsiasi lingua", "non importa"]:
+            dispatcher.utter_message("Va bene, ignorerò la lingua! 😊")
+            return {"language": None}
+        return {"language": slot_value}
+
+    def validate_vote_average(self, slot_value, dispatcher, tracker, domain):
+        """Valida il voto minimo. Se l'utente dice 'no', lo slot viene ignorato."""
+        if not slot_value or str(slot_value).lower() in ["no", "nessuna preferenza", "non importa"]:
+            dispatcher.utter_message("Va bene, non terrò conto del voto! ⭐")
+            return {"vote_average": None}
+        try:
+            vote_value = float(slot_value)
+            if 0 <= vote_value <= 10:
+                return {"vote_average": vote_value}
             else:
-                dispatcher.utter_message(text="Inserisci una valutazione tra 0 e 10.")
+                dispatcher.utter_message("Il voto deve essere tra 0 e 10. Riprova! 🎥")
                 return {"vote_average": None}
         except ValueError:
-            dispatcher.utter_message(text="Per favore, inserisci un numero valido.")
+            dispatcher.utter_message("Per favore, inserisci un numero valido per il voto.")
             return {"vote_average": None}
 
-    def validate_release_date(self, slot_value, dispatcher, tracker, domain):
-        """Se l'utente dice 'No', lasciamo il valore a None"""
-        if slot_value is None or str(slot_value).lower() == "no":
-            return {"release_date": None}
-        if re.match(r"\d{4}-\d{2}-\d{2}", slot_value):
-            return {"release_date": slot_value}
-        dispatcher.utter_message("La data deve essere nel formato YYYY-MM-DD. Riprova.")
-        return {"release_date": None}
