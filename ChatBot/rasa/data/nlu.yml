@@ -114,17 +114,24 @@ nlu:
 
 - intent: cerca_per_valutazione
   examples: |
-    - Elencami i film con voto superiore a [8](rating)
-    - Mostrami i film con rating più alto di [9](rating)
-    - Dimmi quali film hanno una votazione almeno pari a [6](rating)
-    - Quali sono i film che hanno un rating superiore a [5](rating)
-    - Voglio vedere solo film con una valutazione di almeno [7](rating)
-    - Quali film hanno ottenuto un punteggio maggiore di [8.5](rating)?
-    - Mi interessano solo i film con una media voto superiore a [7.5](rating)
-    - Quali film hanno ottenuto una votazione migliore di [6](rating)?
-    - Mostrami i film che hanno un punteggio superiore a [8](rating) su 10
-    - Fammi una lista di film con rating oltre [6](rating)
-    - Mi consigli film con voto maggiore di [8.2](rating)?
+    - Elencami i film con voto superiore a [8](vote_average)
+    - Mostrami i film con rating più alto di [9](vote_average)
+    - Dimmi quali film hanno una votazione almeno pari a [6](vote_average)
+    - Quali sono i film che hanno un rating superiore a [5](vote_average)
+    - Voglio vedere solo film con una valutazione di almeno [7](vote_average)
+    - Quali film hanno ottenuto un punteggio maggiore di [8.5](vote_average)?
+    - Mi interessano solo i film con una media voto superiore a [7.5](vote_average)
+    - Quali film hanno ottenuto una votazione migliore di [6](vote_average)?
+    - Mostrami i film che hanno un punteggio superiore a [8](vote_average) su 10
+    - Fammi una lista di film con rating oltre [6](vote_average)
+    - Mi consigli film con voto maggiore di [8.2](vote_average)?
+    - [8](vote_average)
+    - [7.5](vote_average)
+    - [5](vote_average)
+    - [6.3](vote_average)
+    - [10](vote_average)
+    - [9](vote_average)
+    
 
 - intent: cerca_per_lingua
   examples: |

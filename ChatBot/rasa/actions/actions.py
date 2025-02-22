@@ -107,7 +107,7 @@ class ActionCercaPerRating(Action):
         return "action_cerca_per_rating"
 
     def run(self, dispatcher, tracker, domain):
-        rating = tracker.get_slot("rating")
+        rating = tracker.get_slot("vote_average")
 
         if rating:
             rating = float(rating)
@@ -424,6 +424,12 @@ class ActionSubmitFilmCombinato(Action):
 class ValidateFilmCombinatoForm(FormValidationAction):
     def name(self) -> str:
         return "validate_film_combinato_form"
+    
+    def validate_genres_form(self, slot_value, dispatcher, tracker, domain):
+        """Se la form è attiva, memorizza il valore del genere senza lanciare subito la ricerca"""
+        if tracker.active_loop.get("name") == "movie_search_form":
+            return {"genres_form": slot_value}
+        return {}
 
     def validate_runtime(self, slot_value, dispatcher, tracker, domain):
         """Se l'utente dice 'No', lasciamo il valore a None"""
@@ -434,14 +440,23 @@ class ValidateFilmCombinatoForm(FormValidationAction):
         dispatcher.utter_message("La durata deve essere un numero positivo. Riprova.")
         return {"runtime": None}
 
-    def validate_vote_average(self, slot_value, dispatcher, tracker, domain):
-        """Se l'utente dice 'No', lasciamo il valore a None"""
-        if slot_value is None or str(slot_value).lower() == "no":
+    def validate_rating(
+        self, slot_value: Any, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
+    ) -> Dict[Text, Any]:
+        if slot_value is None:
+            dispatcher.utter_message(text="Non ho capito, inserisci un numero tra 0 e 10 per la valutazione.")
             return {"vote_average": None}
-        if 0 <= float(slot_value) <= 10:
-            return {"vote_average": float(slot_value)}
-        dispatcher.utter_message("Il voto deve essere tra 0 e 10. Riprova.")
-        return {"vote_average": None}
+
+        try:
+            rating = float(slot_value)
+            if 0 <= rating <= 10:
+                return {"vote_average": rating}
+            else:
+                dispatcher.utter_message(text="Inserisci una valutazione tra 0 e 10.")
+                return {"vote_average": None}
+        except ValueError:
+            dispatcher.utter_message(text="Per favore, inserisci un numero valido.")
+            return {"vote_average": None}
 
     def validate_release_date(self, slot_value, dispatcher, tracker, domain):
         """Se l'utente dice 'No', lasciamo il valore a None"""

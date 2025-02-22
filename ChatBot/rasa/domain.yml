@@ -22,15 +22,15 @@ intents:
 entities:
 - title
 - genres
-- rating
+- vote_average
 - language
 - runtime
 - release_date
-- genres_form
-- language_form
-- rating_form
-- runtime_form
-- release_date_form
+#- genres_form
+#- language_form
+#- rating_form
+#- runtime_form
+#- release_date_form
 
 slots:
   title:
@@ -48,85 +48,55 @@ slots:
     mappings:
       - type: from_entity
         entity: genres
-  genres_form:
-    type: text
-    influence_conversation: true
-    mappings:
-      - type: from_entity
-        entity: genres_form
         conditions:
         - active_loop: movie_search_form
-          requested_slot: genres_form 
-  rating:
+          requested_slot: genres
+  vote_average:
     type: float
     influence_conversation: true
     mappings:
       - type: from_entity
-        entity: rating
-  rating_form:
-    type: float
-    influence_conversation: true
-    mappings:
-      - type: from_entity
-        entity: rating_form
+        entity: vote_average
         conditions:
         - active_loop: movie_search_form
-          requested_slot: rating_form 
+          requested_slot: vote_average 
   language:
     type: text
     influence_conversation: true
     mappings:
       - type: from_entity
         entity: language
-  language_form:
-    type: text
-    influence_conversation: true
-    mappings:
-      - type: from_entity
-        entity: language_form
         conditions:
         - active_loop: movie_search_form
-          requested_slot: language_form
+          requested_slot: language
   runtime:
     type: float
     influence_conversation: true
     mappings:
       - type: from_entity
         entity: runtime
-  runtime_form:
-    type: float
-    influence_conversation: true
-    mappings:
-      - type: from_entity
-        entity: runtime_form
         conditions:
         - active_loop: movie_search_form
-          requested_slot: runtime_form
+          requested_slot: runtime
   release_date:
     type: text
     influence_conversation: true
     mappings:
       - type: from_entity
         entity: release_date
-  release_date_form:
-    type: text
-    influence_conversation: true
-    mappings:
-      - type: from_entity
-        entity: release_date_form
         conditions:
         - active_loop: movie_search_form
-          requested_slot: release_date_form
+          requested_slot: release_date
 
 
 forms:
   movie_search_form:
     required_slots:
-      - genres_form
-      - runtime_form
-      - language_form
-      - rating_form
-      - release_date_form
+      - genres
+      - runtime
+      - language
+      - vote_average
+      - release_date
   
 
 actions:
@@ -174,15 +144,15 @@ responses:
   utter_iamabot:
   - text: "Sono un bot, alimentato da Rasa."
 
-  utter_ask_genres_form:
+  utter_ask_genres:
     - text: "Ok, che genere preferisci? (es. horror, commedia, drammatico...)"
-  utter_ask_runtime_form:
+  utter_ask_runtime:
     - text: "Hai preferenze sulla durata del film? (Indica minuti o scrivi 'No' per saltare)"
-  utter_ask_language_form:
+  utter_ask_language:
     - text: "In che lingua vuoi vederlo? (Es. italiano, inglese, francese...)"
-  utter_ask_vote_average_form:
+  utter_ask_vote_average:
     - text: "Hai preferenze sul voto minimo del film? (Da 0 a 10, o scrivi 'No')"
-  utter_ask_release_date_form:
+  utter_ask_release_date:
     - text: "Vuoi un film uscito dopo una certa data? (Formato: YYYY-MM-DD, o scrivi 'No')"
 
 session_config:

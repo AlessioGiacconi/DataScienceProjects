@@ -21,7 +21,9 @@ rules:
   - intent: cerca_info_film
   - action: action_cerca_film
 
-- rule: Cerca film per genere
+- rule: Cerca film per genere (solo se la form non è attiva)
+  condition:
+    - active_loop: null
   steps:
   - intent: cerca_genere
   - action: action_cerca_per_genere
@@ -40,6 +42,13 @@ rules:
   steps:
   - intent: cerca_per_durata
   - action: action_cerca_per_durata
+
+- rule: Cerca film per valutazione
+  condition:
+    - active_loop: null
+  steps:
+  - intent: cerca_per_valutazione
+  - action: action_cerca_per_rating
 
 - rule: Cerca film recenti
   steps:
