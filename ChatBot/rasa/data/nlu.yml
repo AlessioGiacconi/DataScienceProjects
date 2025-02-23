@@ -43,6 +43,7 @@ nlu:
     - sbagliato
     - non voglio
     - non penso proprio
+    - nessuna preferenza
 
 - intent: mood_great
   examples: |

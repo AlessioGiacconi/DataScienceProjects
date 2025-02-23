@@ -383,14 +383,14 @@ class ActionSubmitFilmCombinato(Action):
 
         film_filtrati = df
 
-        if genere and genere != "Nessuna preferenza":
+        if genere:
             genere_eng = translate_genre_ita_to_eng(genere)
             film_filtrati = film_filtrati[film_filtrati["genres"].str.contains(genere_eng, case=False, na=False)]
         
         if durata_max:
             film_filtrati = film_filtrati[(film_filtrati["runtime"] >= 50) & (film_filtrati["runtime"] <= float(durata_max))]
 
-        if lingua and lingua != "Qualsiasi lingua":
+        if lingua:
             lingua_eng = translate_language_ita_to_iso(lingua)
             film_filtrati = film_filtrati[film_filtrati["original_language"] == lingua_eng]
 
@@ -450,8 +450,6 @@ class ValidateFilmCombinatoForm(FormValidationAction):
             return {"runtime": None}
         try:
             runtime_value = int(slot_value)
-            if runtime_value < 60:
-                dispatcher.utter_message("Preferisci un film più lungo di 60 minuti? 🎬")
             return {"runtime": runtime_value}
         except (ValueError, TypeError):
             dispatcher.utter_message("Per favore, inserisci un numero valido per la durata.")

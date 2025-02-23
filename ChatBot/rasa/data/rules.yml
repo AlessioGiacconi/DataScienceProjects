@@ -78,3 +78,12 @@ rules:
     - action: movie_search_form
     - active_loop: null
     - action: action_submit_film_combinato
+
+- rule: Interruzione form cerca film combinato
+  condition:
+    - active_loop: movie_search_form
+  steps:
+    - intent: mood_great
+    - action: utter_happy
+    - action: movie_search_form
+    - active_loop: movie_search_form
