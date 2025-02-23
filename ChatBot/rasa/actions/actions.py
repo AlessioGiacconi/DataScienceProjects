@@ -445,7 +445,7 @@ class ValidateFilmCombinatoForm(FormValidationAction):
 
     def validate_runtime(self, slot_value, dispatcher, tracker, domain):
         """Valida la durata del film. Se l'utente dice 'no', lo slot viene ignorato."""
-        if not slot_value or str(slot_value).lower() in ["no", "nessuna preferenza", "non importa"]:
+        if slot_value is None or isinstance(slot_value, str) and slot_value.lower() in ["no", "nessuna preferenza", "non importa"]:
             dispatcher.utter_message("Va bene, ignorerò la durata! ⏳")
             return {"runtime": None}
         try:
@@ -453,20 +453,20 @@ class ValidateFilmCombinatoForm(FormValidationAction):
             if runtime_value < 60:
                 dispatcher.utter_message("Preferisci un film più lungo di 60 minuti? 🎬")
             return {"runtime": runtime_value}
-        except ValueError:
+        except (ValueError, TypeError):
             dispatcher.utter_message("Per favore, inserisci un numero valido per la durata.")
             return {"runtime": None}
 
     def validate_language(self, slot_value, dispatcher, tracker, domain):
         """Valida la lingua del film. Se l'utente dice 'no', lo slot viene ignorato."""
-        if slot_value and slot_value.lower() in ["no", "nessuna preferenza", "qualsiasi lingua", "non importa"]:
+        if slot_value is None or isinstance(slot_value, str) and slot_value.lower() in ["no", "nessuna preferenza", "qualsiasi lingua", "non importa"]:
             dispatcher.utter_message("Va bene, ignorerò la lingua! 😊")
             return {"language": None}
         return {"language": slot_value}
 
     def validate_vote_average(self, slot_value, dispatcher, tracker, domain):
         """Valida il voto minimo. Se l'utente dice 'no', lo slot viene ignorato."""
-        if not slot_value or str(slot_value).lower() in ["no", "nessuna preferenza", "non importa"]:
+        if slot_value is None or isinstance(slot_value, str) and slot_value.lower() in ["no", "nessuna preferenza", "non importa"]:
             dispatcher.utter_message("Va bene, non terrò conto del voto! ⭐")
             return {"vote_average": None}
         try:
@@ -476,7 +476,7 @@ class ValidateFilmCombinatoForm(FormValidationAction):
             else:
                 dispatcher.utter_message("Il voto deve essere tra 0 e 10. Riprova! 🎥")
                 return {"vote_average": None}
-        except ValueError:
+        except (ValueError, TypeError):
             dispatcher.utter_message("Per favore, inserisci un numero valido per il voto.")
             return {"vote_average": None}
 
