@@ -141,6 +141,8 @@ responses:
     - text: "In che lingua vuoi vederlo? (Es. italiano, inglese, francese...)"
   utter_ask_vote_average:
     - text: "Hai preferenze sul voto minimo del film? (Da 0 a 10, o scrivi 'No')"
+  utter_out_of_scope:
+    - text: "Mi dispiace, ma non posso aiutarti con questa richiesta. 🎬 Posso consigliarti un film?"
 
 session_config:
   session_expiration_time: 60

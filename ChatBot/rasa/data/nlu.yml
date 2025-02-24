@@ -336,3 +336,21 @@ nlu:
     - Cosa posso vedere?
     - Cosa posso guardare?
     - Che film posso guardare oggi?
+
+- intent: out_of_scope
+  examples: |
+    - asdfghjkl
+    - 123456789
+    - abcdef
+    - gugugu
+    - lo porto io
+    - il mio pane
+    - qwerty
+    - skdljfksdjf
+    - parole senza senso
+    - ciao, chi è il presidente dell'Italia?
+    - qual è la capitale della Francia?
+    - parlami di economia
+    - puoi aiutarmi con la matematica?
+    - mi dici il meteo di domani?
+    - ho fame, cosa posso mangiare?

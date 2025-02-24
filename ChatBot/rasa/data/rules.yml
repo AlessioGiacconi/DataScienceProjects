@@ -87,3 +87,8 @@ rules:
     - action: utter_happy
     - action: movie_search_form
     - active_loop: movie_search_form
+  
+- rule: Rispondi quando il messaggio è fuori contesto
+  steps:
+  - intent: out_of_scope
+  - action: utter_out_of_scope
