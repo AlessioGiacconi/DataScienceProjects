@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 from typing import Any, Text, Dict, List
 from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
-from actions.utils import translate_to_italian, translate_genre, translate_genre_ita_to_eng, translate_language_ita_to_iso, genre_translation
+from actions.utils import translate_to_italian, translate_genre, translate_genre_ita_to_eng, translate_language_ita_to_iso, genre_translation, language_translation
 from rasa_sdk.forms import FormValidationAction
 from rasa_sdk.events import SlotSet, AllSlotsReset
 from rasa_sdk.types import DomainDict
@@ -331,7 +331,7 @@ class ActionSubmitFilmCombinato(Action):
             lingua_eng = translate_language_ita_to_iso(lingua)
             film_filtrati = film_filtrati[film_filtrati["original_language"] == lingua_eng]
 
-        if voto_min:
+        if voto_min.isdigit():
             film_filtrati = film_filtrati[film_filtrati["vote_average"] >= float(voto_min)]
 
         if not film_filtrati.empty:
@@ -388,7 +388,7 @@ class ValidateFilmCombinatoForm(FormValidationAction):
             return {"genres_form": genere_casuale}
 
         dispatcher.utter_message("Non ho riconosciuto questo genere. Per favore, scegli un genere valido.")
-        return {"genres_form": None}
+        return {"genres_form": None, "requested_slot":"genres_form"}
 
     def validate_runtime_form(
         self,
@@ -398,36 +398,53 @@ class ValidateFilmCombinatoForm(FormValidationAction):
         domain:DomainDict
     ) -> Dict[Text, Any]:
         
-        if slot_value.lower() == "no":
-            return {"runtime_form": "no"} 
+        if (slot_value.lower() in  ["no", "skip", "non mi interessa", "non importa"]):
+            return {"runtime_form": "no", "requested_slot" : "language_form"}
         
-        try:
-            runtime = slot_value
-            return {"runtime_form": runtime}
-        except ValueError:
-            dispatcher.utter_message(text="Inserisci un numero valido per la durata.")
-            return {"runtime_form": None}
+        if slot_value.isdigit():
+            return {"runtime_form": slot_value}
+        else:
+            dispatcher.utter_message(text="Inserisci un numero valido per la durata e maggiore di 50 minuti.")
+            return {"runtime_form": None, "requested_slot": "runtime_form"}
 
-    def validate_language_form(self, slot_value, dispatcher, tracker, domain):
-        """Valida la lingua del film. Se l'utente dice 'no', lo slot viene ignorato."""
-        if slot_value is None or isinstance(slot_value, str) and slot_value.lower() in ["no", "nessuna preferenza", "qualsiasi lingua", "non importa"]:
-            dispatcher.utter_message("Va bene, ignorerò la lingua! 😊")
-            return {"language_form": None}
-        return {"language_form": slot_value}
+    def validate_language_form(
+        self, 
+        slot_value: Any, 
+        dispatcher: CollectingDispatcher, 
+        tracker: Tracker, 
+        domain: DomainDict
+    ) -> Dict[Text, Any]:
+        """Controlla se la lingua fornita è valida sfruttando la mappatura in utils.py."""
+        language_input = slot_value.lower().strip()
+        lingue_valide = list(language_translation.keys())
 
-    def validate_vote_average_form(self, slot_value, dispatcher, tracker, domain):
-        """Valida il voto minimo. Se l'utente dice 'no', lo slot viene ignorato."""
-        if slot_value is None or isinstance(slot_value, str) and slot_value.lower() in ["no", "nessuna preferenza", "non importa"]:
-            dispatcher.utter_message("Va bene, non terrò conto del voto! ⭐")
-            return {"vote_average_form": None}
-        try:
-            vote_value = float(slot_value)
-            if 0 <= vote_value <= 10:
-                return {"vote_average_form": vote_value}
+        if language_input in lingue_valide:
+            return {"language_form": language_input}
+
+        if language_input == "no":
+            lingua_casuale = random.choice(lingue_valide)
+            dispatcher.utter_message(f"Va bene! Cercherò film in *{lingua_casuale}*.")
+            return {"language_form": lingua_casuale}
+
+        dispatcher.utter_message("Non ho riconosciuto questa lingua. Per favore, scegli una lingua valida.")
+        return {"language_form": None, "requested_slot":"language_form"}
+
+    def validate_vote_average_form(
+        self,
+        slot_value: Any,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain:DomainDict
+    ) -> Dict[Text, Any]:
+    
+        if (slot_value.lower() in  ["no", "skip", "non mi interessa", "non importa"]):
+            return {"vote_average_form": "no"}
+        
+        if (slot_value.isdigit):
+            vote_value=float(slot_value)
+            if (0 < vote_value <= 10):
+                return {"vote_average_form": slot_value}
             else:
-                dispatcher.utter_message("Il voto deve essere tra 0 e 10. Riprova! 🎥")
-                return {"vote_average_form": None}
-        except (ValueError, TypeError):
-            dispatcher.utter_message("Per favore, inserisci un numero valido per il voto.")
-            return {"vote_average_form": None}
+                dispatcher.utter_message("Il voto inserito non è valido o non è un numero. Per favore, scegli un voto compreso tra 1 e 10.")
+                return {"vote_average_form": None, "requested_slot": "vote_average_form"}
 
