@@ -47,45 +47,65 @@ slots:
     mappings:
       - type: from_entity
         entity: genres
-        conditions:
-        - active_loop: movie_search_form
-          requested_slot: genres
   vote_average:
     type: float
     influence_conversation: true
     mappings:
       - type: from_entity
-        entity: vote_average
-        conditions:
-        - active_loop: movie_search_form
-          requested_slot: vote_average 
+        entity: vote_average 
   language:
     type: text
     influence_conversation: true
     mappings:
       - type: from_entity
         entity: language
-        conditions:
-        - active_loop: movie_search_form
-          requested_slot: language
   runtime:
     type: float
     influence_conversation: true
     mappings:
       - type: from_entity
         entity: runtime
+  genres_form:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_text
         conditions:
         - active_loop: movie_search_form
-          requested_slot: runtime
+          requested_slot: genres_form
+  vote_average_form:
+    type: float
+    influence_conversation: true
+    mappings:
+      - type: from_text
+        conditions:
+        - active_loop: movie_search_form
+          requested_slot: vote_average_form 
+  language_form:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_text
+        conditions:
+        - active_loop: movie_search_form
+          requested_slot: language_form
+  runtime_form:
+    type: float
+    influence_conversation: true
+    mappings:
+      - type: from_text
+        conditions:
+        - active_loop: movie_search_form
+          requested_slot: runtime_form
 
 
 forms:
   movie_search_form:
     required_slots:
-      - genres
-      - runtime
-      - language
-      - vote_average
+      - genres_form
+      - runtime_form
+      - language_form
+      - vote_average_form
   
 
 actions:
@@ -133,13 +153,13 @@ responses:
   utter_iamabot:
   - text: "Sono un bot, alimentato da Rasa."
 
-  utter_ask_genres:
+  utter_ask_genres_form:
     - text: "Ok, che genere preferisci? (es. horror, commedia, drammatico...)"
-  utter_ask_runtime:
+  utter_ask_runtime_form:
     - text: "Hai preferenze sulla durata del film? (Indica minuti o scrivi 'No' per saltare)"
-  utter_ask_language:
+  utter_ask_language_form:
     - text: "In che lingua vuoi vederlo? (Es. italiano, inglese, francese...)"
-  utter_ask_vote_average:
+  utter_ask_vote_average_form:
     - text: "Hai preferenze sul voto minimo del film? (Da 0 a 10, o scrivi 'No')"
   utter_out_of_scope:
     - text: "Mi dispiace, ma non posso aiutarti con questa richiesta. 🎬 Posso consigliarti un film?"

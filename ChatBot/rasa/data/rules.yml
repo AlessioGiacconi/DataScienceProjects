@@ -65,30 +65,40 @@ rules:
   - intent: cerca_film_simile
   - action: action_cerca_film_simile
 
-- rule: attiva cerca film combinato
-  steps:
-  - intent: cerca_film_combinato
-  - action: movie_search_form
-  - active_loop: movie_search_form
+# - rule: attiva cerca film combinato
+#   steps:
+#   - intent: cerca_film_combinato
+#   - action: movie_search_form
+#   - active_loop: movie_search_form
 
-- rule: Completamento della form cerca film combinato
-  condition:
-    - active_loop: movie_search_form
-  steps:
-    - action: movie_search_form
-    - active_loop: null
-    - action: action_submit_film_combinato
+# - rule: Completamento della form cerca film combinato
+#   condition:
+#     - active_loop: movie_search_form
+#   steps:
+#     - action: movie_search_form
+#     - active_loop: null
+#     - action: action_submit_film_combinato
 
-- rule: Interruzione form cerca film combinato
-  condition:
-    - active_loop: movie_search_form
-  steps:
-    - intent: mood_great
-    - action: utter_happy
-    - action: movie_search_form
-    - active_loop: movie_search_form
+# - rule: Interruzione form cerca film combinato
+#   condition:
+#     - active_loop: movie_search_form
+#   steps:
+#     - intent: mood_great
+#     - action: utter_happy
+#     - action: movie_search_form
+#     - active_loop: movie_search_form
   
 - rule: Rispondi quando il messaggio è fuori contesto
   steps:
   - intent: out_of_scope
   - action: utter_out_of_scope
+
+- rule: Termina la form e avvia la ricerca del film
+  condition:
+  - active_loop: movie_search_form
+  steps:
+  - action: movie_search_form
+  - active_loop: null
+  - slot_was_set:
+      - requested_slot: null
+  - action: action_submit_film_combinato

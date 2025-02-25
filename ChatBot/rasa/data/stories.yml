@@ -82,3 +82,19 @@ stories:
   steps:
   - intent: cerca_film_simile
   - action: action_cerca_film_simile
+
+- story: ricerca film combinata
+  steps:
+  - intent: cerca_film_combinato
+  - action: movie_search_form
+  - active_loop: movie_search_form
+  - slot_was_set:
+    - requested_slot: genres_form
+  - slot_was_set:
+    - requested_slot: runtime_form
+  - slot_was_set:
+    - requested_slot: language_form
+  - slot_was_set:
+    - requested_slot: vote_average_form
+  - active_loop: null
+  - action: action_submit_film_combinato

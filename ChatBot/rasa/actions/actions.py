@@ -13,6 +13,7 @@ from rasa_sdk.executor import CollectingDispatcher
 from actions.utils import translate_to_italian, translate_genre, translate_genre_ita_to_eng, translate_language_ita_to_iso
 from rasa_sdk.forms import FormValidationAction
 from rasa_sdk.events import SlotSet, AllSlotsReset
+from rasa_sdk.types import DomainDict
 
 df = pd.read_csv("./dataset/tmdb_movies.csv").fillna("Dato non disponibile")
 
@@ -375,11 +376,10 @@ class ActionSubmitFilmCombinato(Action):
         return "action_submit_film_combinato"
 
     def run(self, dispatcher, tracker, domain):
-        genere = tracker.get_slot("genres")
-        durata_max = tracker.get_slot("runtime")
-        lingua = tracker.get_slot("language")
-        voto_min = tracker.get_slot("vote_average")
-        data_min = tracker.get_slot("release_date")
+        genere = tracker.get_slot("genres_form")
+        durata_max = tracker.get_slot("runtime_form")
+        lingua = tracker.get_slot("language_form")
+        voto_min = tracker.get_slot("vote_average_form")
 
         film_filtrati = df
 
@@ -387,7 +387,7 @@ class ActionSubmitFilmCombinato(Action):
             genere_eng = translate_genre_ita_to_eng(genere)
             film_filtrati = film_filtrati[film_filtrati["genres"].str.contains(genere_eng, case=False, na=False)]
         
-        if durata_max:
+        if durata_max.isdigit():
             film_filtrati = film_filtrati[(film_filtrati["runtime"] >= 50) & (film_filtrati["runtime"] <= float(durata_max))]
 
         if lingua:
@@ -396,15 +396,6 @@ class ActionSubmitFilmCombinato(Action):
 
         if voto_min:
             film_filtrati = film_filtrati[film_filtrati["vote_average"] >= float(voto_min)]
-
-        if data_min:
-            try:
-                data_min = datetime.strptime(data_min, "%Y-%m-%d")
-                film_filtrati["release_date"] = pd.to_datetime(film_filtrati["release_date"], errors="coerce")
-                film_filtrati = film_filtrati[film_filtrati["release_date"] >= data_min]
-            except Exception as e:
-                dispatcher.utter_message(f"Errore nella gestione della data: {e}")
-                return []
 
         if not film_filtrati.empty:
             film_list = film_filtrati.sort_values(by="vote_average", ascending=False).head(5)
@@ -425,56 +416,61 @@ class ActionSubmitFilmCombinato(Action):
 
         # 🔥 Resetta gli slot alla fine della ricerca
         return [
-            SlotSet("genres", None),
-            SlotSet("runtime", None),
-            SlotSet("language", None),
-            SlotSet("vote_average", None),
-            SlotSet("release_date", None)
+            SlotSet("genres_form", None),
+            SlotSet("runtime_form", None),
+            SlotSet("language_form", None),
+            SlotSet("vote_average_form", None)
         ]
 
 class ValidateFilmCombinatoForm(FormValidationAction):
     def name(self) -> str:
         return "validate_movie_search_form"
 
-    def validate_genres(self, slot_value, dispatcher, tracker, domain):
+    def validate_genres_form(self, slot_value, dispatcher, tracker, domain):
         """Valida il genere del film. Se l'utente dice 'no', lo slot viene ignorato."""
         if slot_value and slot_value.lower() in ["no", "nessuna preferenza", "non importa"]:
             dispatcher.utter_message("Va bene, non considererò il genere! 🎭")
-            return {"genres": None}
-        return {"genres": slot_value}
+            return {"genres_form": None}
+        return {"genres_form": slot_value}
 
-    def validate_runtime(self, slot_value, dispatcher, tracker, domain):
-        """Valida la durata del film. Se l'utente dice 'no', lo slot viene ignorato."""
-        if slot_value is None or isinstance(slot_value, str) and slot_value.lower() in ["no", "nessuna preferenza", "non importa"]:
-            dispatcher.utter_message("Va bene, ignorerò la durata! ⏳")
-            return {"runtime": None}
+    def validate_runtime_form(
+        self,
+        slot_value: Any,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain:DomainDict
+    ) -> Dict[Text, Any]:
+        
+        if slot_value.lower() == "no":
+            return {"runtime_form": "no"} 
+        
         try:
-            runtime_value = int(slot_value)
-            return {"runtime": runtime_value}
-        except (ValueError, TypeError):
-            dispatcher.utter_message("Per favore, inserisci un numero valido per la durata.")
-            return {"runtime": None}
+            runtime = slot_value
+            return {"runtime_form": runtime}
+        except ValueError:
+            dispatcher.utter_message(text="Inserisci un numero valido per la durata.")
+            return {"runtime_form": None}
 
-    def validate_language(self, slot_value, dispatcher, tracker, domain):
+    def validate_language_form(self, slot_value, dispatcher, tracker, domain):
         """Valida la lingua del film. Se l'utente dice 'no', lo slot viene ignorato."""
         if slot_value is None or isinstance(slot_value, str) and slot_value.lower() in ["no", "nessuna preferenza", "qualsiasi lingua", "non importa"]:
             dispatcher.utter_message("Va bene, ignorerò la lingua! 😊")
-            return {"language": None}
-        return {"language": slot_value}
+            return {"language_form": None}
+        return {"language_form": slot_value}
 
-    def validate_vote_average(self, slot_value, dispatcher, tracker, domain):
+    def validate_vote_average_form(self, slot_value, dispatcher, tracker, domain):
         """Valida il voto minimo. Se l'utente dice 'no', lo slot viene ignorato."""
         if slot_value is None or isinstance(slot_value, str) and slot_value.lower() in ["no", "nessuna preferenza", "non importa"]:
             dispatcher.utter_message("Va bene, non terrò conto del voto! ⭐")
-            return {"vote_average": None}
+            return {"vote_average_form": None}
         try:
             vote_value = float(slot_value)
             if 0 <= vote_value <= 10:
-                return {"vote_average": vote_value}
+                return {"vote_average_form": vote_value}
             else:
                 dispatcher.utter_message("Il voto deve essere tra 0 e 10. Riprova! 🎥")
-                return {"vote_average": None}
+                return {"vote_average_form": None}
         except (ValueError, TypeError):
             dispatcher.utter_message("Per favore, inserisci un numero valido per il voto.")
-            return {"vote_average": None}
+            return {"vote_average_form": None}
 
