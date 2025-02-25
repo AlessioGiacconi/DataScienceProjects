@@ -16,6 +16,7 @@ intents:
   - cerca_per_durata
   - cerca_film_recenti
   - richiedi_overview
+  - richiedi_poster
   - cerca_film_combinato
   - cerca_film_simile
 
@@ -117,6 +118,7 @@ actions:
 - action_cerca_per_durata
 - action_cerca_film_recenti
 - action_mostra_overview
+- action_mostra_poster
 - action_submit_film_combinato
 - action_cerca_film_simile
 - validate_movie_search_form

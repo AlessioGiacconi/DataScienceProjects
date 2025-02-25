@@ -202,8 +202,6 @@ nlu:
     - [90]](runtime) minuti
     - [100](runtime) minuti
     - [80](runtime) minuti
-    
-
 
 - intent: cerca_film_recenti
   examples: |
@@ -248,6 +246,29 @@ nlu:
     - Raccontami brevemente la trama di [Whiplash](title)
     - Riassumi la storia di questo film
     - Puoi dirmi di cosa parla?
+
+- intent: richiedi_poster
+  examples: |
+    - Mostrami il poster di [Titanic](title)
+    - Voglio vedere la locandina di [Inception](title)
+    - Hai il poster di [Avatar](title)?
+    - Fammi vedere il poster di [The Matrix](title)
+    - Qual è la locandina di [Iron Man](title)?
+    - Mostra il poster di [Interstellar](title)
+    - Voglio vedere l'immagine del film [Joker](title)
+    - Puoi farmi vedere la copertina di [Spider-Man](title)?
+    - Qual è il poster ufficiale di [The Godfather](title)?
+    - Puoi mostrarmi l’immagine di [Forrest Gump](title)?
+    - Mostrami il poster
+    - Voglio vedere la locandina
+    - Hai il poster di questo film?
+    - Fammi vedere la copertina
+    - Qual è la locandina del film che abbiamo trovato?
+    - Mostra il poster del film
+    - Voglio vedere l’immagine di quel film
+    - Puoi farmi vedere il poster ufficiale?
+    - Qual è la copertina del film che mi hai consigliato?
+    - Mostra il poster di quello che abbiamo appena cercato
 
 - intent: cerca_film_simile
   examples: |

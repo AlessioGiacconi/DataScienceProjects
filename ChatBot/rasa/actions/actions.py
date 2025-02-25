@@ -201,18 +201,18 @@ class ActionCercaFilmRecenti(Action):
         return "action_cerca_film_recenti"
 
     def run(self, dispatcher, tracker, domain):
-        # Calcola la data di 3 mesi fa
-        data_massima = datetime.strptime("2025-02-12", "%Y-%m-%d") # Calcola la data di 3 mesi fa        
-        data_limite = data_massima - timedelta(days=90)
+        # Calcola la data 
+        data_massima = datetime.strptime("2025-02-12", "%Y-%m-%d")
+        data_limite = data_massima - timedelta(days=720)
 
-        # Filtra i film usciti negli ultimi 3 mesi e ordina per voto decrescente
+        # Filtra i film usciti nell'ultimo anno e ordina per voto decrescente
         film_recenti = df[(pd.to_datetime(df['release_date'], errors='coerce') >= data_limite)].sort_values(by='vote_average', ascending=False).head(10)
 
         if not film_recenti.empty:
             film_list = [f"{row['title']} (⭐ {row['vote_average']}, uscita: {row['release_date']})" for _, row in film_recenti.iterrows()]
-            dispatcher.utter_message("🎞️ Ecco i 10 film più recenti e famosi degli ultimi 3 mesi:\n" + "\n".join(film_list))
+            dispatcher.utter_message("🎞️ Ecco i 10 film più recenti e famosi dell'ultimo anno:\n" + "\n".join(film_list))
         else:
-            dispatcher.utter_message("Non ho trovato film recenti negli ultimi 3 mesi 😢")
+            dispatcher.utter_message("Non ho trovato film recenti nell'ultimo anno 😢")
 
         return []
     
@@ -246,9 +246,51 @@ class ActionMostraOverview(Action):
         if not film.empty:
             overview_en = film.iloc[0]["overview"]  # Otteniamo la trama
             overview_it = translate_to_italian(overview_en)
-            dispatcher.utter_message(f"Ecco la trama di **{titolo_film}**:\n\n{overview_it}")
+            dispatcher.utter_message(f"Ecco la trama di {titolo_film}:\n\n{overview_it}")
         else:
-            dispatcher.utter_message(f"Non ho trovato la trama di **{titolo_film}**. Assicurati che il titolo sia corretto! 😢")
+            dispatcher.utter_message(f"Non ho trovato la trama di {titolo_film}. Assicurati che il titolo sia corretto! 😢")
+
+        return []
+
+class ActionMostraPoster(Action):
+    def name(self):
+        return "action_mostra_poster"
+
+    def run(self, dispatcher, tracker, domain):
+        # Ottieni il titolo dallo slot (ultimo titolo cercato)
+        titolo_slot = tracker.get_slot("title")
+
+        # Controlla se l'utente ha fornito un titolo nel messaggio
+        titolo_messaggio = next(tracker.get_latest_entity_values("title"), None)
+
+        # Se l'utente ha fornito un nuovo titolo, lo usiamo
+        if titolo_messaggio:
+            titolo_film = titolo_messaggio
+        else:
+            # Se l'utente NON ha fornito un nuovo titolo, usiamo l'ultimo memorizzato
+            titolo_film = titolo_slot
+
+        # Se il titolo è vuoto, chiediamo di specificarlo
+        if not titolo_film:
+            dispatcher.utter_message("Non so di quale film vuoi vedere il poster. Puoi dirmi il titolo? 🎬")
+            return []
+
+        # Cerchiamo il film nel dataset
+        film = df[df["title"].str.lower() == titolo_film.lower()]
+
+        if not film.empty:
+            film_info = film.iloc[0]
+            poster_path = film_info["poster_path"]
+
+            # Creazione dell'URL del poster
+            if pd.notna(poster_path) and poster_path:
+                image_url = f"https://image.tmdb.org/t/p/w500{poster_path}"
+                dispatcher.utter_message(f"Ecco il poster di {titolo_film} 🎥:")
+                dispatcher.utter_message(image=image_url)  # Mostra l'immagine
+            else:
+                dispatcher.utter_message(f"Non ho trovato il poster per {titolo_film}. 😢")
+        else:
+            dispatcher.utter_message(f"Non ho trovato il film {titolo_film}. Assicurati che il titolo sia corretto! 😢")
 
         return []
     
