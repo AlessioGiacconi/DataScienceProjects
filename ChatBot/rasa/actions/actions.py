@@ -5,12 +5,13 @@
 # https://rasa.com/docs/rasa/custom-actions
 
 import pandas as pd
+import random
 import re
 from datetime import datetime, timedelta
 from typing import Any, Text, Dict, List
 from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
-from actions.utils import translate_to_italian, translate_genre, translate_genre_ita_to_eng, translate_language_ita_to_iso
+from actions.utils import translate_to_italian, translate_genre, translate_genre_ita_to_eng, translate_language_ita_to_iso, genre_translation
 from rasa_sdk.forms import FormValidationAction
 from rasa_sdk.events import SlotSet, AllSlotsReset
 from rasa_sdk.types import DomainDict
@@ -250,70 +251,6 @@ class ActionMostraOverview(Action):
             dispatcher.utter_message(f"Non ho trovato la trama di **{titolo_film}**. Assicurati che il titolo sia corretto! 😢")
 
         return []
-
-'''class ActionCercaFilmCombinato(Action):
-    def name(self):
-        return "action_cerca_film_combinato"
-
-    def run(self, dispatcher, tracker, domain):
-        # Recupera i parametri dai rispettivi slot
-        genere = tracker.get_slot("genres")
-        durata_max = tracker.get_slot("runtime")
-        lingua = tracker.get_slot("language")
-        voto_min = tracker.get_slot("rating")
-        data_min = tracker.get_slot("release_date")
-
-        # Applica i filtri in base ai parametri forniti
-        film_filtrati = df
-
-        # Filtro per genere
-        if genere:
-            genere_eng = translate_genre_ita_to_eng(genere)
-            film_filtrati = film_filtrati[film_filtrati["genres"].str.contains(genere_eng, case=False, na=False)]
-
-        # Filtro per durata massima
-        if durata_max:
-            film_filtrati = film_filtrati[film_filtrati["runtime"] <= float(durata_max)]
-
-        # Filtro per lingua
-        if lingua:
-            lingua_eng = translate_language_ita_to_iso(lingua)
-            film_filtrati = film_filtrati[film_filtrati["original_language"] == lingua_eng]
-
-        # Filtro per voto minimo
-        if voto_min:
-            film_filtrati = film_filtrati[film_filtrati["vote_average"] >= float(voto_min)]
-
-        # Filtro per data di rilascio minima
-        if data_min:
-            try:
-                data_min = datetime.strptime(data_min, "%Y-%m-%d")
-                film_filtrati["release_date"] = pd.to_datetime(film_filtrati["release_date"], errors="coerce")
-                film_filtrati = film_filtrati[film_filtrati["release_date"] >= data_min]
-            except Exception as e:
-                dispatcher.utter_message(f"Errore nella gestione della data: {e}")
-                return []
-
-        # Mostra i risultati
-        if not film_filtrati.empty:
-            film_list = film_filtrati.sort_values(by="vote_average", ascending=False).head(5)
-            messaggio = "🎬 Ecco i film che corrispondono ai criteri richiesti:\n"
-            for _, row in film_list.iterrows():
-                overview_it = translate_to_italian(row["overview"])
-                messaggio += (
-                    f"\n🎞️ {row['title']}\n"
-                    f"⭐ Voto medio: {row['vote_average']}/10\n"
-                    f"🕒 Durata: {int(row['runtime']//60)}h {int(row['runtime']%60)}m\n"
-                    f"🗓️ Rilasciato il: {row['release_date']}\n"
-                    f"📝 Trama: {overview_it}\n"
-                    f"---------------------------------\n"
-                )
-            dispatcher.utter_message(messaggio)
-        else:
-            dispatcher.utter_message("Non ho trovato film che corrispondano ai criteri richiesti 😢")
-
-        return []'''
-
     
 class ActionCercaFilmSimile(Action):
     def name(self):
@@ -426,12 +363,32 @@ class ValidateFilmCombinatoForm(FormValidationAction):
     def name(self) -> str:
         return "validate_movie_search_form"
 
-    def validate_genres_form(self, slot_value, dispatcher, tracker, domain):
-        """Valida il genere del film. Se l'utente dice 'no', lo slot viene ignorato."""
-        if slot_value and slot_value.lower() in ["no", "nessuna preferenza", "non importa"]:
-            dispatcher.utter_message("Va bene, non considererò il genere! 🎭")
-            return {"genres_form": None}
-        return {"genres_form": slot_value}
+    def validate_genres_form(
+        self, 
+        slot_value: Any, 
+        dispatcher: CollectingDispatcher, 
+        tracker: Tracker, 
+        domain: DomainDict
+    ) -> Dict[Text, Any]:
+        """
+        Controlla se il genere fornito è valido sfruttando la mappatura dei generi in utils.py.
+        Se l'utente scrive "no", assegna un genere casuale.
+        """
+        genere_input = slot_value.lower().strip()
+
+        # Lista dei generi validi presi dalla mappatura (in italiano)
+        generi_validi = list(genre_translation.keys())
+
+        if genere_input in generi_validi:
+            return {"genres_form": genere_input}
+
+        if genere_input == "no":
+            genere_casuale = random.choice(generi_validi)
+            dispatcher.utter_message(f"Va bene! Ti suggerisco un film di genere **{genere_casuale}**.")
+            return {"genres_form": genere_casuale}
+
+        dispatcher.utter_message("Non ho riconosciuto questo genere. Per favore, scegli un genere valido.")
+        return {"genres_form": None}
 
     def validate_runtime_form(
         self,
