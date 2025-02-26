@@ -26,11 +26,6 @@ entities:
 - vote_average
 - language
 - runtime
-#- genres_form
-#- language_form
-#- rating_form
-#- runtime_form
-#- release_date_form
 
 slots:
   title:
@@ -126,18 +121,17 @@ actions:
 responses:
   utter_greet:
     - text: |
-        🎬 Ciao e benvenuto su CineGuru AI! 🍿  
-        Sono il tuo assistente cinematografico personale e posso aiutarti a:
-
-        - 🔍 Cercare informazioni dettagliate su qualsiasi film  
-        - 🎞️ Trovare film in base al genere, alla lingua, alla durata o al voto medio  
-        - 📅 Mostrare i film più recenti usciti negli ultimi mesi  
-        - 🎲 Suggerirti un film randomico se non sai cosa guardare  
-        - 🤝 Consigliarti film simili a uno che hai già apprezzato  
-        - 🎛️ Trovare film combinando più parametri come lingua, genere, voto, durata e data di uscita  
-        - 📖 Mostrare la trama di un film specifico  
-
-        🎯 Che film vuoi scoprire oggi?  
+        🎬 Ciao e benvenut* su CineGuru AI! 🍿  
+        Sono il tuo assistente cinematografico personale e posso aiutarti a:  
+          🔍 Cercare informazioni dettagliate su qualsiasi film  
+          ⭐ Trovare film in base ai tuoi gusti, scegliendo per genere, lingua, durata o valutazione più alta 
+          📅 Scoprire le ultime uscite, con i film più recenti disponibili 
+          🎲 Ricevere un suggerimento casuale, se non sai cosa guardare  
+          🤝 Trovare film simili a uno che hai già apprezzato  
+          📢 Combinare più parametri per affinare la ricerca: lingua, genere, voto e durata
+          📖 Ottenere la trama di un film con un semplice comando  
+          🎭 Visualizzare il poster ufficiale di un film  
+        🎯 Dimmi cosa stai cercando e ti aiuterò a trovare il film perfetto! 🍿🎥
 
   utter_cheer_up:
   - text: "Ecco qualcosa per tirarti su di morale!"
@@ -155,12 +149,15 @@ responses:
   utter_iamabot:
   - text: "Sono un bot, alimentato da Rasa."
 
+  utter_followup:
+    - text: "🎬 Spero di esserti stato d'aiuto! Fammi altre domande, se vuoi. 😊"
+
   utter_ask_genres_form:
-    - text: "Ok, che genere preferisci? (es. horror, commedia, drammatico...)"
+    - text: "Preferisci un certo genere? (es. horror, commedia, drammatico... o scrivi 'No' per saltare)"
   utter_ask_runtime_form:
     - text: "Hai preferenze sulla durata del film? (Indica minuti o scrivi 'No' per saltare)"
   utter_ask_language_form:
-    - text: "In che lingua vuoi vederlo? (Es. italiano, inglese, francese...)"
+    - text: "In che lingua vuoi vederlo? (Es. italiano, inglese, francese... o scrivi 'No' per saltare)"
   utter_ask_vote_average_form:
     - text: "Hai preferenze sul voto minimo del film? (Da 0 a 10, o scrivi 'No')"
   utter_out_of_scope:

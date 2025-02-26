@@ -34,36 +34,6 @@ stories:
   - intent: cerca_info_film
   - action: action_cerca_film
 
-- story: Utente cerca film per genere
-  steps:
-  - intent: cerca_genere
-  - action: action_cerca_per_genere
-
-- story: Utente cerca film per valutazione
-  steps:
-  - intent: cerca_per_valutazione
-  - action: action_cerca_per_rating
-
-- story: Utente cerca film per lingua
-  steps:
-  - intent: cerca_per_lingua
-  - action: action_cerca_per_lingua
-
-- story: Utente cerca film randomico
-  steps:
-  - intent: cerca_film_random
-  - action: action_cerca_film_random
-
-- story: Utente cerca film per durata
-  steps:
-  - intent: cerca_per_durata
-  - action: action_cerca_per_durata
-
-- story: Utente cerca film recenti
-  steps:
-  - intent: cerca_film_recenti
-  - action: action_cerca_film_recenti
-
 - story: L'utente cerca un film e poi chiede la trama
   steps:
   - intent: cerca_info_film
@@ -81,11 +51,6 @@ stories:
     - title: true
   - intent: richiedi_poster
   - action: action_mostra_poster
-
-- story: Utente cerca film simile
-  steps:
-  - intent: cerca_film_simile
-  - action: action_cerca_film_simile
 
 - story: ricerca film combinata
   steps:

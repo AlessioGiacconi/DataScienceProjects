@@ -27,21 +27,25 @@ rules:
   steps:
   - intent: cerca_genere
   - action: action_cerca_per_genere
+  - action: utter_followup
 
 - rule: Cerca film per lingua
   steps:
   - intent: cerca_per_lingua
   - action: action_cerca_per_lingua
+  - action: utter_followup
 
 - rule: Cerca film randomico
   steps:
   - intent: cerca_film_random
   - action: action_cerca_film_random
+  - action: utter_followup
 
 - rule: Cerca film per durata
   steps:
   - intent: cerca_per_durata
   - action: action_cerca_per_durata
+  - action: utter_followup
 
 - rule: Cerca film per valutazione
   condition:
@@ -49,16 +53,19 @@ rules:
   steps:
   - intent: cerca_per_valutazione
   - action: action_cerca_per_rating
+  - action: utter_followup
 
 - rule: Cerca film recenti
   steps:
   - intent: cerca_film_recenti
   - action: action_cerca_film_recenti
+  - action: utter_followup
 
 - rule: Cerca film simile
   steps:
   - intent: cerca_film_simile
   - action: action_cerca_film_simile
+  - action: utter_followup
   
 - rule: Rispondi quando il messaggio è fuori contesto
   steps:

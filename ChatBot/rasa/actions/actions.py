@@ -1,9 +1,3 @@
-# This files contains your custom actions which can be used to run
-# custom Python code.
-#
-# See this guide on how to implement these action:
-# https://rasa.com/docs/rasa/custom-actions
-
 import pandas as pd
 import random
 import re
@@ -164,7 +158,8 @@ class ActionCercaFilmRandom(Action):
                 f"🎲 Ecco un film randomico scelto per te!\n"
                 f"🎬 {film_random['title']} è uscito il {film_random['release_date']}.\n"
                 f"🎞️ Genere: {genres_it}\n"
-                f"📖 Trama: {overview_it}"
+                f"📖 Trama: {overview_it}\n"
+                f"---------------------------------\n"
             )
             dispatcher.utter_message(risposta)
         else:
@@ -210,9 +205,9 @@ class ActionCercaFilmRecenti(Action):
 
         if not film_recenti.empty:
             film_list = [f"{row['title']} (⭐ {row['vote_average']}, uscita: {row['release_date']})" for _, row in film_recenti.iterrows()]
-            dispatcher.utter_message("🎞️ Ecco i 10 film più recenti e famosi dell'ultimo anno:\n" + "\n".join(film_list))
+            dispatcher.utter_message("🎞️ Ecco i 10 film più recenti e famosi:\n" + "\n".join(film_list))
         else:
-            dispatcher.utter_message("Non ho trovato film recenti nell'ultimo anno 😢")
+            dispatcher.utter_message("Non ho trovato film recenti 😢")
 
         return []
     
@@ -246,7 +241,7 @@ class ActionMostraOverview(Action):
         if not film.empty:
             overview_en = film.iloc[0]["overview"]  # Otteniamo la trama
             overview_it = translate_to_italian(overview_en)
-            dispatcher.utter_message(f"Ecco la trama di {titolo_film}:\n\n{overview_it}")
+            dispatcher.utter_message(f"Ecco la trama di {titolo_film}:\n{overview_it}")
         else:
             dispatcher.utter_message(f"Non ho trovato la trama di {titolo_film}. Assicurati che il titolo sia corretto! 😢")
 
@@ -285,7 +280,7 @@ class ActionMostraPoster(Action):
             # Creazione dell'URL del poster
             if pd.notna(poster_path) and poster_path:
                 image_url = f"https://image.tmdb.org/t/p/w500{poster_path}"
-                dispatcher.utter_message(f"Ecco il poster di {titolo_film} 🎥:")
+                dispatcher.utter_message(f"Ecco il poster di {titolo_film} 🎥:\n")
                 dispatcher.utter_message(image=image_url)  # Mostra l'immagine
             else:
                 dispatcher.utter_message(f"Non ho trovato il poster per {titolo_film}. 😢")
@@ -308,7 +303,7 @@ class ActionCercaFilmSimile(Action):
         # Cerchiamo il film nel dataset
         film_base = df[df["title"].str.lower() == titolo.lower()]
         if film_base.empty:
-            dispatcher.utter_message(f"Non ho trovato il film '{titolo}'. Assicurati che il titolo sia corretto! 😢")
+            dispatcher.utter_message(f"Non ho trovato il film {titolo}. Assicurati che il titolo sia corretto! 😢")
             return []
 
         # Estraiamo informazioni del film di riferimento
@@ -333,7 +328,7 @@ class ActionCercaFilmSimile(Action):
             return []
 
         # Creiamo il messaggio di risposta
-        messaggi = [f"🎬 Ecco alcuni film simili a '{titolo}':\n"]
+        messaggi = [f"🎬 Ecco alcuni film simili a {titolo}:\n"]
         for _, row in film_simili.iterrows():
             genres_it = translate_genre(str(row["genres"]))
             overview_it = translate_to_italian(row["overview"]) if row["overview"] else "Trama non disponibile"
@@ -393,7 +388,7 @@ class ActionSubmitFilmCombinato(Action):
         else:
             dispatcher.utter_message("Non ho trovato film che corrispondano ai criteri richiesti 😢")
 
-        # 🔥 Resetta gli slot alla fine della ricerca
+        # Resetta gli slot alla fine della ricerca
         return [
             SlotSet("genres_form", None),
             SlotSet("runtime_form", None),

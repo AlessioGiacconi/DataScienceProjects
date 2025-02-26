@@ -14,6 +14,11 @@ nlu:
     - ciao caro
     - ciao compa
     - we
+    - start
+    - inizia
+    - /start
+    - iniziamo
+    - cominciamo
 
 - intent: goodbye
   examples: |
