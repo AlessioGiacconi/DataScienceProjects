@@ -1,5 +1,7 @@
 import pandas as pd
 from pathlib import Path
+
+from scipy.stats import alpha
 from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
@@ -64,6 +66,21 @@ cluster_summary = rfm.groupby('Cluster').agg({
 
 print(cluster_summary)
 
+cluster_names = {
+    0: "Occasionali",
+    1: "VIP",
+    2: "Importanti",
+    3: "Dormienti"
+}
+rfm['Cluster_Label'] = rfm['Cluster'].map(cluster_names)
+
+cluster_colors = {
+    0: 'blue',
+    1: 'orange',
+    2: 'green',
+    3: 'red'
+}
+
 # Visualizzare il numero di clienti per cluster
 fig = plt.figure(figsize=(10, 8))
 ax = fig.add_subplot(111, projection='3d')
@@ -75,16 +92,19 @@ for cluster in rfm['Cluster'].unique():
         cluster_data['Recency'],
         cluster_data['Frequency'],
         cluster_data['Monetary'],
-        label=f'Cluster {cluster}',
+        label=cluster_names[cluster],
         s=40,
-        alpha=0.6
+        alpha=0.5,
+        color=cluster_colors[cluster]
     )
 
 centroids = kmeans.cluster_centers_
-ax.scatter(centroids[:, 0], centroids[:, 1], s=20, c='black', label='Centroidi', marker='o')
+centroids_original = scaler.inverse_transform(centroids)
+ax.scatter(centroids_original[:, 0], centroids_original[:, 1], centroids_original[:, 2],
+           s=150, c='black', label='Centroidi', marker='o',
+           edgecolors='black', linewidths=1.5, alpha=1)
 
 ax.view_init(elev=20, azim=220)
-
 ax.set_title('K-Means Clustering', fontsize=16)
 ax.set_xlabel('Recency', fontsize=12)
 ax.set_ylabel('Frequency', fontsize=12)
@@ -92,7 +112,6 @@ ax.set_zlabel('Monetary', fontsize=12)
 ax.legend()
 ax.grid(True, linestyle='--', alpha=0.7)
 plt.tight_layout()
-
 plt.show()
 
 '''plt.figure(figsize=(8, 6))
@@ -120,14 +139,14 @@ for i in range(optimal_k):
     y_upper = y_lower + cluster_size
 
     # Disegnare la banda per il cluster corrente
-    plt.fill_betweenx(np.arange(y_lower, y_upper), 0, cluster_silhouette_vals, alpha=0.7, label=f"Cluster {i}")
+    plt.fill_betweenx(np.arange(y_lower, y_upper), 0, cluster_silhouette_vals, alpha=0.7, color=cluster_colors[i], label=cluster_names[i])
 
     # Calcolare la posizione centrale per l'etichetta del cluster
     tick_positions.append((y_lower + y_upper) / 2)
     y_lower = y_upper + 10  # Aggiungere uno spazio tra i cluster
 
 # Aggiungere le etichette dei cluster all'asse Y
-plt.yticks(tick_positions, [f"Cluster {i}" for i in range(optimal_k)])
+plt.yticks(tick_positions, [cluster_names[i] for i in range(optimal_k)], fontsize=10)
 
 # Linea del Silhouette Score Medio
 plt.axvline(np.mean(silhouette_vals), color="red", linestyle="--", label="Silhouette Score Medio")
